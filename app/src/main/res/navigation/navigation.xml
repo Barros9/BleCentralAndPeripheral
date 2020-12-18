@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/navigation"
+        app:startDestination="@id/mainFragment">
+
+    <fragment
+            android:id="@+id/mainFragment"
+            android:name="com.barros.blecentralperipheral.mainfragment.MainFragment"
+            android:label="MainFragment" >
+        <action
+                android:id="@+id/action_mainFragment_to_centralFragment"
+                app:destination="@id/centralFragment" />
+        <action
+                android:id="@+id/action_mainFragment_to_peripheralFragment"
+                app:destination="@id/peripheralFragment" />
+    </fragment>
+    <fragment
+            android:id="@+id/centralFragment"
+            android:name="com.barros.blecentralperipheral.centralfragment.CentralFragment"
+            android:label="CentralFragment" />
+    <fragment
+            android:id="@+id/peripheralFragment"
+            android:name="com.barros.blecentralperipheral.peripheralfragment.PeripheralFragment"
+            android:label="PeripheralFragment" />
+</navigation>
