@@ -23,12 +23,20 @@ class MainFragment : Fragment() {
             this.viewModel = viewModel
             this.lifecycleOwner = this@MainFragment
 
-            central.setOnClickListener {
-                findNavController().navigate(MainFragmentDirections.actionMainFragmentToCentralFragment())
+            centralAdvertising.setOnClickListener {
+                findNavController().navigate(MainFragmentDirections.actionMainFragmentToCentralAdvertisingFragment())
             }
 
-            peripheral.setOnClickListener {
-                findNavController().navigate(MainFragmentDirections.actionMainFragmentToPeripheralFragment())
+            peripheralAdvertising.setOnClickListener {
+                findNavController().navigate(MainFragmentDirections.actionMainFragmentToPeripheralAdvertisingFragment())
+            }
+
+            centralConnect.setOnClickListener {
+                findNavController().navigate(MainFragmentDirections.actionMainFragmentToCentralConnectFragment())
+            }
+
+            peripheralConnect.setOnClickListener {
+                findNavController().navigate(MainFragmentDirections.actionMainFragmentToPeripheralConnectFragment())
             }
 
             viewModel.showToast.observe(viewLifecycleOwner, { message ->

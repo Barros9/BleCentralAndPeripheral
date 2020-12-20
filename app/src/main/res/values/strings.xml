@@ -12,5 +12,12 @@
     <string name="sample_numbers">0000</string>
     <string name="insert_4_numbers">Insert 4 numbers</string>
     <string name="active_scan">Active Scan</string>
-    <string name="advertise">Advertise</string>
+    <string name="advertising">Advertising</string>
+    <string name="connect">Connect</string>
+    <string name="bluetooth_address">Ble Address:</string>
+    <string name="bluetooth_name">Ble Name:</string>
+    <string name="write_four_numbers">Write four numbers:</string>
+    <string name="read">Read</string>
+    <string name="notify">Notify</string>
+    <string name="read_characteristic">Read Characteristic</string>
 </resources>

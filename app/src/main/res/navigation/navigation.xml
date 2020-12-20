@@ -9,18 +9,55 @@
             android:name="com.barros.blecentralperipheral.mainfragment.MainFragment"
             android:label="MainFragment" >
         <action
-                android:id="@+id/action_mainFragment_to_centralFragment"
-                app:destination="@id/centralFragment" />
+            android:id="@+id/action_mainFragment_to_centralAdvertisingFragment"
+            app:destination="@id/centralAdvertisingFragment" />
         <action
-                android:id="@+id/action_mainFragment_to_peripheralFragment"
-                app:destination="@id/peripheralFragment" />
+            android:id="@+id/action_mainFragment_to_peripheralAdvertisingFragment"
+            app:destination="@id/peripheralAdvertisingFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_centralConnectFragment"
+            app:destination="@id/centralConnectFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_peripheralConnectFragment"
+            app:destination="@id/peripheralConnectFragment" />
     </fragment>
     <fragment
-            android:id="@+id/centralFragment"
-            android:name="com.barros.blecentralperipheral.centralfragment.CentralFragment"
-            android:label="CentralFragment" />
+        android:id="@+id/centralAdvertisingFragment"
+        android:name="com.barros.blecentralperipheral.advertising.centralfragment.CentralAdvertisingFragment"
+        android:label="CentralAdvertisingFragment" />
     <fragment
-            android:id="@+id/peripheralFragment"
-            android:name="com.barros.blecentralperipheral.peripheralfragment.PeripheralFragment"
-            android:label="PeripheralFragment" />
+        android:id="@+id/centralConnectFragment"
+        android:name="com.barros.blecentralperipheral.connect.centralfragment.CentralConnectFragment"
+        android:label="CentralConnectFragment" >
+        <action
+            android:id="@+id/action_centralConnectFragment_to_deviceFragment"
+            app:destination="@id/deviceFragment" />
+        <action
+            android:id="@+id/action_centralConnectFragment_to_characteristicFragment"
+            app:destination="@id/characteristicFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/peripheralAdvertisingFragment"
+        android:name="com.barros.blecentralperipheral.advertising.peripheralfragment.PeripheralAdvertisingFragment"
+        android:label="PeripheralAdvertisingFragment" />
+    <fragment
+        android:id="@+id/peripheralConnectFragment"
+        android:name="com.barros.blecentralperipheral.connect.peripheralfragment.PeripheralConnectFragment"
+        android:label="PeripheralConnectFragment" />
+    <fragment
+        android:id="@+id/deviceFragment"
+        android:name="com.barros.blecentralperipheral.connect.devicefragment.DeviceFragment"
+        android:label="DeviceFragment" >
+        <argument
+            android:name="bleItem"
+            app:argType="com.barros.blecentralperipheral.connect.model.BleItem" />
+    </fragment>
+    <fragment
+        android:id="@+id/characteristicFragment"
+        android:name="com.barros.blecentralperipheral.connect.characteristicfragment.CharacteristicFragment"
+        android:label="CharacteristicFragment" >
+        <argument
+            android:name="bleItem"
+            app:argType="com.barros.blecentralperipheral.connect.model.BleItem" />
+    </fragment>
 </navigation>

@@ -1,4 +1,4 @@
-package com.barros.blecentralperipheral.peripheralfragment
+package com.barros.blecentralperipheral.advertising.peripheralfragment
 
 import android.Manifest
 import android.app.Application
@@ -9,14 +9,14 @@ import androidx.core.content.PermissionChecker.checkSelfPermission
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.barros.blecentralperipheral.ble.advertise.BLEPeripheralAdvertise
+import com.barros.blecentralperipheral.advertising.ble.BLEPeripheralAdvertising
 
-class PeripheralViewModel(application: Application) : AndroidViewModel(application) {
+class PeripheralAdvertisingViewModel(application: Application) : AndroidViewModel(application) {
 
     private val context = getApplication<Application>().applicationContext
     private val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
-    private val blePeripheral = BLEPeripheralAdvertise(context, bluetoothManager)
+    private val blePeripheral = BLEPeripheralAdvertising(context, bluetoothManager)
     private var isAlreadyAdvertising = false
 
     val sendingValue = MutableLiveData("")

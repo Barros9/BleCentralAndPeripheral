@@ -10,14 +10,86 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/mainLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/colorDark"
-            tools:context=".mainfragment.MainFragment">
+        android:id="@+id/mainLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorDark"
+        tools:context=".mainfragment.MainFragment">
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/cardViewSearch"
+            android:id="@+id/card1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="@color/colorPrimaryDark"
+            app:cardCornerRadius="16dp"
+            app:layout_constraintBottom_toTopOf="@+id/card2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            app:layout_constraintVertical_chainStyle="packed">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/advertising"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/advertising"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toEndOf="@+id/centralAdvertising"
+                    app:layout_constraintStart_toStartOf="@+id/centralAdvertising"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/centralAdvertising"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="24dp"
+                    android:backgroundTint="@color/colorPrimary"
+                    android:enabled="@{viewModel.isEnabled}"
+                    android:text="@string/central"
+                    android:textColor="@color/colorAccent"
+                    app:layout_constraintBottom_toTopOf="@+id/peripheralAdvertising"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/advertising"
+                    app:layout_constraintVertical_chainStyle="packed" />
+
+                <Button
+                    android:id="@+id/peripheralAdvertising"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:backgroundTint="@color/colorPrimary"
+                    android:enabled="@{viewModel.isEnabled}"
+                    android:text="@string/peripheral"
+                    android:textColor="@color/colorAccent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/centralAdvertising"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintStart_toStartOf="@+id/centralAdvertising"
+                    app:layout_constraintTop_toBottomOf="@+id/centralAdvertising" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -28,28 +100,28 @@
             app:cardCornerRadius="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0">
+            app:layout_constraintTop_toBottomOf="@+id/card1">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:id="@+id/advertise"
+                    android:id="@+id/connect"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="Advertise"
+                    android:text="@string/connect"
                     android:textColor="@color/colorAccent"
                     android:textSize="16sp"
-                    app:layout_constraintEnd_toEndOf="@+id/central"
-                    app:layout_constraintStart_toStartOf="@+id/central"
+                    app:layout_constraintEnd_toEndOf="@+id/centralConnect"
+                    app:layout_constraintStart_toStartOf="@+id/centralConnect"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <Button
-                    android:id="@+id/central"
+                    android:id="@+id/centralConnect"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="24dp"
@@ -59,15 +131,15 @@
                     android:enabled="@{viewModel.isEnabled}"
                     android:text="@string/central"
                     android:textColor="@color/colorAccent"
-                    app:layout_constraintBottom_toTopOf="@+id/peripheral"
+                    app:layout_constraintBottom_toTopOf="@+id/peripheralConnect"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/advertise"
+                    app:layout_constraintTop_toBottomOf="@+id/connect"
                     app:layout_constraintVertical_chainStyle="packed" />
 
                 <Button
-                    android:id="@+id/peripheral"
+                    android:id="@+id/peripheralConnect"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
@@ -77,10 +149,10 @@
                     android:text="@string/peripheral"
                     android:textColor="@color/colorAccent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="@+id/central"
+                    app:layout_constraintEnd_toEndOf="@+id/centralConnect"
                     app:layout_constraintHorizontal_bias="1.0"
-                    app:layout_constraintStart_toStartOf="@+id/central"
-                    app:layout_constraintTop_toBottomOf="@+id/central" />
+                    app:layout_constraintStart_toStartOf="@+id/centralConnect"
+                    app:layout_constraintTop_toBottomOf="@+id/centralConnect" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -1,4 +1,4 @@
-package com.barros.blecentralperipheral.centralfragment
+package com.barros.blecentralperipheral.advertising.centralfragment
 
 import android.Manifest
 import android.app.Application
@@ -9,15 +9,15 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.barros.blecentralperipheral.ble.advertise.BLECentralAdvertise
+import com.barros.blecentralperipheral.advertising.ble.BLECentralAdvertising
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-class CentralViewModel(application: Application) : AndroidViewModel(application) {
+class CentralAdvertisingViewModel(application: Application) : AndroidViewModel(application) {
     private val context = getApplication<Application>().applicationContext
     private val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
-    private val bleCentral = BLECentralAdvertise(context)
+    private val bleCentral = BLECentralAdvertising(context)
 
     private val _receiving = MutableLiveData("Nothing")
     val receiving: LiveData<String> = _receiving

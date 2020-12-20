@@ -1,45 +1,35 @@
-package com.barros.blecentralperipheral.peripheralfragment
+package com.barros.blecentralperipheral.advertising.centralfragment
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.app.ActivityCompat.requestPermissions
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.barros.blecentralperipheral.REQUEST_ENABLE_BT
 import com.barros.blecentralperipheral.REQUEST_FINE_LOCATION
-import com.barros.blecentralperipheral.databinding.FragmentPeripheralBinding
+import com.barros.blecentralperipheral.TAG
+import com.barros.blecentralperipheral.databinding.FragmentCentralAdvertisingBinding
 
-class PeripheralFragment : Fragment() {
+class CentralAdvertisingFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val viewModel = ViewModelProvider(this).get(PeripheralViewModel::class.java)
+        val viewModel = ViewModelProvider(this).get(CentralAdvertisingViewModel::class.java)
 
-        return FragmentPeripheralBinding.inflate(inflater).apply {
+        return FragmentCentralAdvertisingBinding.inflate(inflater).apply {
             this.viewModel = viewModel
-            this.lifecycleOwner = this@PeripheralFragment
-
-            sendingValue.addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(s: Editable) {}
-                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                    viewModel.sendingValue.value = s.toString()
-                    viewModel.updateSentValue()
-                }
-            })
+            this.lifecycleOwner = this@CentralAdvertisingFragment
 
             viewModel.requestBluetooth.observe(viewLifecycleOwner, {
                 val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
@@ -47,7 +37,7 @@ class PeripheralFragment : Fragment() {
             })
 
             viewModel.requestLocation.observe(viewLifecycleOwner, {
-                requestPermissions(
+                ActivityCompat.requestPermissions(
                     requireActivity(),
                     arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                     REQUEST_FINE_LOCATION
@@ -70,7 +60,7 @@ class PeripheralFragment : Fragment() {
         when (requestCode) {
             REQUEST_FINE_LOCATION -> {
                 if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    Log.i("TAG", "ACCESS_FINE_LOCATION Permission Denied")
+                    Log.i(TAG, "ACCESS_FINE_LOCATION Permission Denied")
                 }
             }
         }

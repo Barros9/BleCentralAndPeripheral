@@ -1,4 +1,4 @@
-package com.barros.blecentralperipheral.ble.advertise
+package com.barros.blecentralperipheral.advertising.ble
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.BluetoothLeScanner
@@ -16,7 +16,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
 
-class BLECentralAdvertise(context: Context) {
+class BLECentralAdvertising(context: Context) {
     private val uuid: UUID = UUID.fromString(context.getString(R.string.uuid))
     var bleScanner: BluetoothLeScanner = BluetoothAdapter.getDefaultAdapter().bluetoothLeScanner
     private val channel = Channel<String>()
@@ -46,9 +46,7 @@ class BLECentralAdvertise(context: Context) {
         bleScanner.startScan(filters, settings, leScanCallback)
     }
 
-    fun getResponseFlow(): Flow<String> {
-        return channel.consumeAsFlow()
-    }
+    fun getResponseFlow(): Flow<String> = channel.consumeAsFlow()
 
     fun stopScan() {
         Log.d(TAG, "Stop Scan")

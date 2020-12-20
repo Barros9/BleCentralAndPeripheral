@@ -1,4 +1,4 @@
-package com.barros.blecentralperipheral.ble.advertise
+package com.barros.blecentralperipheral.advertising.ble
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGattServer
@@ -16,7 +16,7 @@ import com.barros.blecentralperipheral.R
 import com.barros.blecentralperipheral.TAG
 import java.util.UUID
 
-class BLEPeripheralAdvertise(
+class BLEPeripheralAdvertising(
     private val context: Context,
     private val bluetoothManager: BluetoothManager
 ) {
