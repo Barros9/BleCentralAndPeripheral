@@ -52,12 +52,12 @@
             android:name="bleItem"
             app:argType="com.barros.blecentralperipheral.connect.model.BleItem" />
     </fragment>
-    <fragment
+    <dialog
         android:id="@+id/characteristicFragment"
         android:name="com.barros.blecentralperipheral.connect.characteristicfragment.CharacteristicFragment"
         android:label="CharacteristicFragment" >
         <argument
             android:name="bleItem"
             app:argType="com.barros.blecentralperipheral.connect.model.BleItem" />
-    </fragment>
+    </dialog>
 </navigation>

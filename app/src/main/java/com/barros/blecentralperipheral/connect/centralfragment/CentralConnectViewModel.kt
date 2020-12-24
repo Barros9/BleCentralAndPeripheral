@@ -5,7 +5,10 @@ import android.app.Application
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import androidx.core.content.PermissionChecker
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.barros.blecentralperipheral.connect.ble.BLECentralConnect
 import com.barros.blecentralperipheral.connect.model.BleItem
 import kotlinx.coroutines.flow.collect
@@ -77,6 +80,5 @@ class CentralConnectViewModel(application: Application) : AndroidViewModel(appli
     override fun onCleared() {
         super.onCleared()
         bleCentral.stopScan()
-        bleCentral.stopGetServiceDataListByAddress()
     }
 }

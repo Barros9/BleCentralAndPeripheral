@@ -1,7 +1,11 @@
 package com.barros.blecentralperipheral.connect.ble
 
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.le.*
+import android.bluetooth.le.BluetoothLeScanner
+import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanFilter
+import android.bluetooth.le.ScanResult
+import android.bluetooth.le.ScanSettings
 import android.util.Log
 import com.barros.blecentralperipheral.TAG
 import com.barros.blecentralperipheral.connect.model.ServiceDataItem

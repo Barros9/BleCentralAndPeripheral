@@ -1,7 +1,7 @@
 package com.barros.blecentralperipheral.connect.model
 
 import android.os.Parcelable
-import java.util.*
+import java.util.UUID
 import kotlinx.parcelize.Parcelize
 
 @Parcelize

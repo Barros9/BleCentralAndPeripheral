@@ -1,10 +1,13 @@
 package com.barros.blecentralperipheral.connect.characteristicfragment
 
 import android.Manifest
-import android.bluetooth.*
+import android.bluetooth.BluetoothManager
 import android.content.Context
 import androidx.core.content.PermissionChecker
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.barros.blecentralperipheral.connect.ble.BLECharacteristic
 import com.barros.blecentralperipheral.connect.model.BleItem
 import com.barros.blecentralperipheral.connect.model.ServiceDataItem

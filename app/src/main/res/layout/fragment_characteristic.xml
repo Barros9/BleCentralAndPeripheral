@@ -4,6 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import
+            alias="v"
+            type="android.view.View"/>
         <variable
             name="viewModel"
             type="com.barros.blecentralperipheral.connect.characteristicfragment.CharacteristicViewModel" />
@@ -31,6 +34,19 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0"
             app:listServiceDataItem="@{viewModel.serviceDataItems}" />
+
+        <TextView
+            android:id="@+id/no_characteristic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/no_characteristic_read"
+            android:textColor="@color/colorAccent"
+            android:textSize="20sp"
+            android:visibility="@{viewModel.serviceDataItems.size == 0 ? v.VISIBLE : v.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

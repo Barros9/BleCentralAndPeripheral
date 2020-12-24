@@ -20,4 +20,8 @@
     <string name="read">Read</string>
     <string name="notify">Notify</string>
     <string name="read_characteristic">Read Characteristic</string>
+    <string name="characteristic">Characteristic</string>
+    <string name="uuid_text">UUID:</string>
+    <string name="data">Data:</string>
+    <string name="no_characteristic_read">No characteristic read</string>
 </resources>

@@ -84,11 +84,12 @@
                             android:text="@{viewModel.bleItem.name}"
                             android:textColor="@color/colorAccent"
                             android:textSize="20sp"
-                            app:layout_constraintBaseline_toBaselineOf="@+id/bleNameText"
+                            app:layout_constraintBottom_toBottomOf="@+id/bleNameText"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintHorizontal_bias="0.0"
                             app:layout_constraintHorizontal_chainStyle="packed"
-                            app:layout_constraintStart_toStartOf="@+id/bleAddress" />
+                            app:layout_constraintStart_toStartOf="@+id/bleAddress"
+                            app:layout_constraintTop_toTopOf="@+id/bleNameText" />
 
                         <TextView
                             android:id="@+id/bleAddressText"
@@ -117,11 +118,12 @@
                             android:text="@{viewModel.bleItem.address}"
                             android:textColor="@color/colorAccent"
                             android:textSize="20sp"
-                            app:layout_constraintBaseline_toBaselineOf="@+id/bleAddressText"
+                            app:layout_constraintBottom_toBottomOf="@+id/bleAddressText"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintHorizontal_bias="0.5"
                             app:layout_constraintHorizontal_chainStyle="packed"
-                            app:layout_constraintStart_toEndOf="@+id/bleAddressText" />
+                            app:layout_constraintStart_toEndOf="@+id/bleAddressText"
+                            app:layout_constraintTop_toTopOf="@+id/bleAddressText" />
 
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -165,7 +167,7 @@
                             app:layout_constraintHorizontal_chainStyle="packed"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="@+id/switchConnect"
-                            app:layout_constraintVertical_bias="0.0" />
+                            app:layout_constraintVertical_bias="0.5" />
 
                         <com.google.android.material.switchmaterial.SwitchMaterial
                             android:id="@+id/switchConnect"
@@ -364,22 +366,6 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </androidx.cardview.widget.CardView>
-
-                <Button
-                    android:id="@+id/characteristic"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:background="@color/colorPrimary"
-                    android:text="@string/read_characteristic"
-                    android:textColor="@color/colorAccent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/card3"
-                    app:layout_constraintVertical_bias="0.0" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

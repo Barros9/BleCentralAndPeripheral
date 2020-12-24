@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
+        <import
+            alias="v"
+            type="android.view.View"/>
         <variable
             name="bleItem"
             type="com.barros.blecentralperipheral.connect.model.BleItem" />
@@ -61,7 +63,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/name"
                     tools:text="Mac Address" />
 
-                <Button
+                <TextView
                     android:id="@+id/characteristic"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -69,8 +71,9 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:layout_marginBottom="8dp"
+                    android:padding="4dp"
                     android:background="@color/colorPrimary"
-                    android:text="Char"
+                    android:text="@string/characteristic"
                     android:textColor="@color/colorAccent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/connect"
@@ -79,15 +82,17 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/macAddress" />
 
-                <Button
+                <TextView
                     android:id="@+id/connect"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="16dp"
+                    android:padding="4dp"
                     android:background="@color/colorPrimary"
                     android:text="@string/connect"
                     android:textColor="@color/colorAccent"
+                    android:visibility="@{bleItem.isConnectable ? v.VISIBLE : v.GONE}"
                     app:layout_constraintBottom_toBottomOf="@+id/characteristic"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
