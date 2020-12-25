@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
 
 class BLECentralAdvertising(context: Context) {
-    private val uuid: UUID = UUID.fromString(context.getString(R.string.uuid))
+    private val uuid: UUID = UUID.fromString(context.getString(R.string.uuid_advertising))
     var bleScanner: BluetoothLeScanner = BluetoothAdapter.getDefaultAdapter().bluetoothLeScanner
     private val channel = Channel<String>()
 

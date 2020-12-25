@@ -20,7 +20,7 @@ class BLEPeripheralAdvertising(
     private val context: Context,
     private val bluetoothManager: BluetoothManager
 ) {
-    private val uuid: UUID = UUID.fromString(context.getString(R.string.uuid))
+    private val uuid: UUID = UUID.fromString(context.getString(R.string.uuid_advertising))
     inner class GattServerCallback : BluetoothGattServerCallback()
     var gattServerCallback: GattServerCallback = GattServerCallback()
     private var bluetoothLeAdvertiser: BluetoothLeAdvertiser = BluetoothAdapter.getDefaultAdapter().bluetoothLeAdvertiser

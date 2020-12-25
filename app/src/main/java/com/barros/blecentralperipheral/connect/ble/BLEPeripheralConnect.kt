@@ -1,6 +1,7 @@
 package com.barros.blecentralperipheral.connect.ble
 
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattServer
 import android.bluetooth.BluetoothGattServerCallback
 import android.bluetooth.BluetoothGattService
@@ -16,24 +17,40 @@ import com.barros.blecentralperipheral.R
 import com.barros.blecentralperipheral.TAG
 import java.util.UUID
 
-class BLEPeripheralPeripheral(
+class BLEPeripheralConnect(
     private val context: Context,
     private val bluetoothManager: BluetoothManager
 ) {
-    private val uuid: UUID = UUID.fromString(context.getString(R.string.uuid))
+    private val uuidConnect: UUID = UUID.fromString(context.getString(R.string.uuid_connect))
+    private val uuidCharacteristic: UUID = UUID.fromString(context.getString(R.string.uuid_characteristic))
     inner class GattServerCallback : BluetoothGattServerCallback()
     var gattServerCallback: GattServerCallback = GattServerCallback()
     private var bluetoothLeAdvertiser: BluetoothLeAdvertiser = BluetoothAdapter.getDefaultAdapter().bluetoothLeAdvertiser
+
     lateinit var bluetoothGattServer: BluetoothGattServer
+    lateinit var bluetoothGattService: BluetoothGattService
 
     fun startAdvertise(sendingMessage: String) {
         Log.d(TAG, "Start Advertise")
         bluetoothGattServer = bluetoothManager.openGattServer(context, gattServerCallback)
 
-        val bluetoothGattService = BluetoothGattService(uuid, BluetoothGattService.SERVICE_TYPE_PRIMARY)
+        bluetoothGattService = BluetoothGattService(
+            uuidConnect,
+            BluetoothGattService.SERVICE_TYPE_PRIMARY
+        )
+
+        val characteristic = BluetoothGattCharacteristic(
+            uuidCharacteristic,
+            BluetoothGattCharacteristic.PROPERTY_READ or BluetoothGattCharacteristic.PROPERTY_NOTIFY or BluetoothGattCharacteristic.PROPERTY_WRITE,
+            BluetoothGattCharacteristic.PERMISSION_READ
+        )
+
+        characteristic.value = sendingMessage.toByteArray(Charsets.UTF_8)
+
+        bluetoothGattService.addCharacteristic(characteristic)
         bluetoothGattServer.addService(bluetoothGattService)
 
-        val parcelUuid = ParcelUuid(uuid)
+        val parcelUuid = ParcelUuid(uuidConnect)
 
         val advertiseSettings = AdvertiseSettings.Builder().apply {
             setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED)
@@ -46,16 +63,18 @@ class BLEPeripheralPeripheral(
             addServiceUuid(parcelUuid)
         }.build()
 
-        val scanResponse = AdvertiseData.Builder().apply {
-            addServiceData(parcelUuid, sendingMessage.toByteArray(Charsets.UTF_8))
-        }.build()
-
         bluetoothLeAdvertiser.startAdvertising(
             advertiseSettings,
             advertiseData,
-            scanResponse,
             advertiseCallback
         )
+    }
+
+    fun tryNotify() {
+        val characteristic = bluetoothGattService.getCharacteristic(uuidCharacteristic)
+        characteristic.setValue("Prova")
+        val device = bluetoothGattServer.connectedDevices[0] // TODO check this
+        bluetoothGattServer.notifyCharacteristicChanged(device, characteristic, false)
     }
 
     fun stopAdvertise() {

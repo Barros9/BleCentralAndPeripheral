@@ -35,8 +35,14 @@ class DeviceViewModel(val context: Context, item: BleItem) : ViewModel() {
     private val _errorMessage = MutableLiveData("")
     val errorMessage: LiveData<String> = _errorMessage
 
-    private val _readValue = MutableLiveData("Nothing")
+    private val _readValue = MutableLiveData("Read nothing")
     val readValue: LiveData<String> = _readValue
+
+    private val _notifyValue = MutableLiveData("Notify nothing")
+    val notifyValue: LiveData<String> = _notifyValue
+
+    private val _writeValue = MutableLiveData("Write nothing")
+    val writeValue: LiveData<String> = _writeValue
 
     init {
         _bleItem.value = item
