@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">BLE Central and Peripheral</string>
-    <string name="uuid_advertising">27bdd9c5-db15-4265-abd9-1b4c2570e963</string>
-    <string name="uuid_connect">67ee1dda-79fe-4d8c-b4a1-f23a8271571a</string>
+    <string name="uuid_advertising_service">27bdd9c5-db15-4265-abd9-1b4c2570e963</string>
+    <string name="uuid_connect_service">67ee1dda-79fe-4d8c-b4a1-f23a8271571a</string>
     <string name="uuid_characteristic">94a07d29-148a-4101-bbc1-b064c2f67240</string>
     <string name="central">central</string>
     <string name="peripheral">peripheral</string>

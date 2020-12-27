@@ -52,10 +52,10 @@ class PeripheralAdvertisingViewModel(application: Application) : AndroidViewMode
             }
             false -> {
                 if (isAlreadyAdvertising) {
-                    blePeripheral.stopAdvertise()
+                    blePeripheral.stop()
                 }
-                _peripheralSwitch.value = false
                 isAlreadyAdvertising = false
+                _peripheralSwitch.value = false
                 _isShowError.value = false
                 _sentValue.value = "Nothing"
             }
@@ -84,9 +84,9 @@ class PeripheralAdvertisingViewModel(application: Application) : AndroidViewMode
 
     private fun startAdvertise() {
         if (isAlreadyAdvertising) {
-            blePeripheral.stopAdvertise()
+            blePeripheral.stop()
         }
-        blePeripheral.startAdvertise(_sentValue.value!!)
+        blePeripheral.start(_sentValue.value!!)
         isAlreadyAdvertising = true
     }
 
@@ -110,7 +110,7 @@ class PeripheralAdvertisingViewModel(application: Application) : AndroidViewMode
     override fun onCleared() {
         super.onCleared()
         if (isAlreadyAdvertising) {
-            blePeripheral.stopAdvertise()
+            blePeripheral.stop()
         }
     }
 }

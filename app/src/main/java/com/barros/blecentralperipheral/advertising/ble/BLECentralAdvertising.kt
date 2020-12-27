@@ -17,9 +17,31 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
 
 class BLECentralAdvertising(context: Context) {
-    private val uuid: UUID = UUID.fromString(context.getString(R.string.uuid_advertising))
-    var bleScanner: BluetoothLeScanner = BluetoothAdapter.getDefaultAdapter().bluetoothLeScanner
+    private val uuidAdvertisingService: UUID = UUID.fromString(context.getString(R.string.uuid_advertising_service))
+    private val bleScanner: BluetoothLeScanner = BluetoothAdapter.getDefaultAdapter().bluetoothLeScanner
     private val channel = Channel<String>()
+
+    fun startScan() {
+        Log.i(TAG, "Start Scan")
+        val filters: MutableList<ScanFilter> = mutableListOf(
+            ScanFilter.Builder()
+                .setServiceUuid(ParcelUuid(uuidAdvertisingService))
+                .build()
+        )
+        val settings: ScanSettings = ScanSettings.Builder()
+            .setScanMode(ScanSettings.SCAN_MODE_BALANCED)
+            .build()
+
+        bleScanner.startScan(filters, settings, leScanCallback)
+    }
+
+    fun stopScan() {
+        Log.i(TAG, "Stop Scan")
+        bleScanner.stopScan(leScanCallback)
+        channel.close()
+    }
+
+    fun getResponseFlow(): Flow<String> = channel.consumeAsFlow()
 
     private val leScanCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
@@ -30,27 +52,5 @@ class BLECentralAdvertising(context: Context) {
                 channel.offer(offerResponse)
             }
         }
-    }
-
-    fun startScan() {
-        Log.d(TAG, "Start Scan")
-        val filters: MutableList<ScanFilter> = mutableListOf(
-            ScanFilter.Builder()
-                .setServiceUuid(ParcelUuid(uuid))
-                .build()
-        )
-        val settings: ScanSettings = ScanSettings.Builder()
-            .setScanMode(ScanSettings.SCAN_MODE_BALANCED)
-            .build()
-
-        bleScanner.startScan(filters, settings, leScanCallback)
-    }
-
-    fun getResponseFlow(): Flow<String> = channel.consumeAsFlow()
-
-    fun stopScan() {
-        Log.d(TAG, "Stop Scan")
-        bleScanner.stopScan(leScanCallback)
-        channel.close()
     }
 }

@@ -6,9 +6,7 @@ import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import com.barros.blecentralperipheral.TAG
 import com.barros.blecentralperipheral.connect.model.BleItem
 import kotlinx.coroutines.channels.Channel
@@ -16,27 +14,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
 
 class BLECentralConnect {
-    var bleScanner: BluetoothLeScanner = BluetoothAdapter.getDefaultAdapter().bluetoothLeScanner
-    private lateinit var bleItemList: MutableList<BleItem>
-    private lateinit var bleItemListChannel: Channel<List<BleItem>>
-
-    private val leScanCallback: ScanCallback = object : ScanCallback() {
-        @RequiresApi(Build.VERSION_CODES.O)
-        override fun onScanResult(callbackType: Int, result: ScanResult) {
-            super.onScanResult(callbackType, result)
-
-            val bleItem = if (result.device.name != null) {
-                BleItem(result.device.name, result.device.address, result.isConnectable)
-            } else {
-                BleItem("N/A", result.device.address, result.isConnectable)
-            }
-
-            if (!bleItemList.contains(bleItem)) {
-                bleItemList.add(bleItem)
-                bleItemListChannel.offer(bleItemList)
-            }
-        }
-    }
+    private val bleScanner: BluetoothLeScanner = BluetoothAdapter.getDefaultAdapter().bluetoothLeScanner
+    private val bleItemList = mutableListOf<BleItem>()
+    private val bleItemListChannel = Channel<List<BleItem>>()
 
     fun startScan() {
         Log.d(TAG, "Start Scan")
@@ -51,17 +31,36 @@ class BLECentralConnect {
             .setReportDelay(0)
             .build()
 
-        bleItemList = mutableListOf()
-        bleItemListChannel = Channel()
+//        TODO
+//        bleItemList = mutableListOf()
+//        bleItemListChannel = Channel()
         bleScanner.startScan(filters, settings, leScanCallback)
     }
-
-    fun getBleItemListFlow(): Flow<List<BleItem>> = bleItemListChannel.consumeAsFlow()
 
     fun stopScan() {
         Log.d(TAG, "Stop Scan")
         bleScanner.stopScan(leScanCallback)
         bleItemList.clear()
         bleItemListChannel.close()
+    }
+
+    fun getBleItemListFlow(): Flow<List<BleItem>> = bleItemListChannel.consumeAsFlow()
+
+    private val leScanCallback: ScanCallback = object : ScanCallback() {
+        override fun onScanResult(callbackType: Int, result: ScanResult) {
+            super.onScanResult(callbackType, result)
+
+            val bleItem = if (result.device.name != null) {
+                BleItem(result.device.name, result.device.address, result.isConnectable)
+            } else {
+                BleItem("N/A", result.device.address, result.isConnectable)
+            }
+
+            if (!bleItemList.contains(bleItem)) {
+                bleItemList.add(bleItem)
+                Log.d(TAG, "Offer response $bleItemList")
+                bleItemListChannel.offer(bleItemList)
+            }
+        }
     }
 }

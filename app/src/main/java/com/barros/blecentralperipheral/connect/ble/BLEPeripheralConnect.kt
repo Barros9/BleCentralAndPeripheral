@@ -1,11 +1,13 @@
 package com.barros.blecentralperipheral.connect.ble
 
-import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattServer
 import android.bluetooth.BluetoothGattServerCallback
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
@@ -21,36 +23,33 @@ class BLEPeripheralConnect(
     private val context: Context,
     private val bluetoothManager: BluetoothManager
 ) {
-    private val uuidConnect: UUID = UUID.fromString(context.getString(R.string.uuid_connect))
+    private val uuidConnectService: UUID = UUID.fromString(context.getString(R.string.uuid_connect_service))
     private val uuidCharacteristic: UUID = UUID.fromString(context.getString(R.string.uuid_characteristic))
-    inner class GattServerCallback : BluetoothGattServerCallback()
-    var gattServerCallback: GattServerCallback = GattServerCallback()
-    private var bluetoothLeAdvertiser: BluetoothLeAdvertiser = BluetoothAdapter.getDefaultAdapter().bluetoothLeAdvertiser
 
-    lateinit var bluetoothGattServer: BluetoothGattServer
-    lateinit var bluetoothGattService: BluetoothGattService
+    private lateinit var bluetoothGattServer: BluetoothGattServer
+    private lateinit var bluetoothLeAdvertiser: BluetoothLeAdvertiser
 
-    fun startAdvertise(sendingMessage: String) {
-        Log.d(TAG, "Start Advertise")
-        bluetoothGattServer = bluetoothManager.openGattServer(context, gattServerCallback)
+    private lateinit var sentValue: String
 
-        bluetoothGattService = BluetoothGattService(
-            uuidConnect,
-            BluetoothGattService.SERVICE_TYPE_PRIMARY
-        )
+    fun start(value: String) {
+        sentValue = value
+        startAdvertising()
+        startServer()
+    }
 
-        val characteristic = BluetoothGattCharacteristic(
-            uuidCharacteristic,
-            BluetoothGattCharacteristic.PROPERTY_READ or BluetoothGattCharacteristic.PROPERTY_NOTIFY or BluetoothGattCharacteristic.PROPERTY_WRITE,
-            BluetoothGattCharacteristic.PERMISSION_READ
-        )
+    fun stop() {
+        stopServer()
+        stopAdvertising()
+    }
 
-        characteristic.value = sendingMessage.toByteArray(Charsets.UTF_8)
+    private fun startAdvertising() {
+        val bluetoothAdapter = bluetoothManager.adapter
+        bluetoothLeAdvertiser = bluetoothAdapter.bluetoothLeAdvertiser
 
-        bluetoothGattService.addCharacteristic(characteristic)
-        bluetoothGattServer.addService(bluetoothGattService)
-
-        val parcelUuid = ParcelUuid(uuidConnect)
+        if (bluetoothLeAdvertiser == null) {
+            Log.e(TAG, "Failed to create advertiser")
+            return
+        }
 
         val advertiseSettings = AdvertiseSettings.Builder().apply {
             setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED)
@@ -60,7 +59,7 @@ class BLEPeripheralConnect(
 
         val advertiseData = AdvertiseData.Builder().apply {
             setIncludeDeviceName(false)
-            addServiceUuid(parcelUuid)
+            addServiceUuid(ParcelUuid(uuidConnectService))
         }.build()
 
         bluetoothLeAdvertiser.startAdvertising(
@@ -70,26 +69,74 @@ class BLEPeripheralConnect(
         )
     }
 
-    fun tryNotify() {
-        val characteristic = bluetoothGattService.getCharacteristic(uuidCharacteristic)
-        characteristic.setValue("Prova")
-        val device = bluetoothGattServer.connectedDevices[0] // TODO check this
-        bluetoothGattServer.notifyCharacteristicChanged(device, characteristic, false)
+    private fun stopAdvertising() {
+        if (bluetoothLeAdvertiser == null) {
+            return
+        }
+        bluetoothLeAdvertiser.stopAdvertising(advertiseCallback)
     }
 
-    fun stopAdvertise() {
-        Log.d(TAG, "Stop Advertise")
-        bluetoothLeAdvertiser.stopAdvertising(advertiseCallback)
+    private fun startServer() {
+        bluetoothGattServer = bluetoothManager.openGattServer(context, gattServerCallback)
+
+        if (bluetoothGattServer == null) {
+            Log.e(TAG, "Failed to create GATT server")
+            return
+        }
+
+        bluetoothGattServer.addService(createService())
+    }
+
+    private fun stopServer() {
+        if (bluetoothGattServer == null) {
+            return
+        }
         bluetoothGattServer.close()
+    }
+
+    private fun createService(): BluetoothGattService {
+        val bluetoothGattService = BluetoothGattService(uuidConnectService, BluetoothGattService.SERVICE_TYPE_PRIMARY)
+
+        val bluetoothGattCharacteristic = BluetoothGattCharacteristic(
+                uuidCharacteristic,
+                BluetoothGattCharacteristic.PROPERTY_READ or BluetoothGattCharacteristic.PROPERTY_NOTIFY or BluetoothGattCharacteristic.PROPERTY_WRITE,
+                BluetoothGattCharacteristic.PERMISSION_READ or BluetoothGattCharacteristic.PROPERTY_NOTIFY or BluetoothGattCharacteristic.PERMISSION_WRITE
+        )
+
+        // TODO descriptor?
+
+        bluetoothGattService.addCharacteristic(bluetoothGattCharacteristic)
+
+        return bluetoothGattService
     }
 
     private val advertiseCallback = object : AdvertiseCallback() {
         override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
-            Log.d(TAG, "Peripheral advertise started.")
+            Log.i(TAG, "Peripheral advertise started.")
         }
 
         override fun onStartFailure(errorCode: Int) {
-            Log.d(TAG, "Peripheral advertise failed: $errorCode")
+            Log.i(TAG, "Peripheral advertise failed: $errorCode")
+        }
+    }
+
+    private val gattServerCallback = object : BluetoothGattServerCallback() {
+        override fun onConnectionStateChange(device: BluetoothDevice, status: Int, newState: Int) {
+            if (newState == BluetoothProfile.STATE_CONNECTED) {
+                Log.i(TAG, "BluetoothDevice CONNECTED: $device")
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                Log.i(TAG, "BluetoothDevice DISCONNECTED: $device")
+            }
+        }
+
+        override fun onCharacteristicReadRequest(device: BluetoothDevice?, requestId: Int, offset: Int, characteristic: BluetoothGattCharacteristic) {
+            if (uuidCharacteristic == characteristic.uuid) {
+                Log.i(TAG, "Read Characteristic")
+                bluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, sentValue.toByteArray(Charsets.UTF_8))
+            } else {
+                Log.w(TAG, "Invalid Characteristic Read: " + characteristic.uuid)
+                bluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_FAILURE, 0, null)
+            }
         }
     }
 }

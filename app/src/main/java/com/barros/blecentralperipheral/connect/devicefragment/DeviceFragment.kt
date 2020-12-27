@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.barros.blecentralperipheral.R
 import com.barros.blecentralperipheral.connect.model.BleItem
+import com.barros.blecentralperipheral.connect.peripheralfragment.Mode
 import com.barros.blecentralperipheral.databinding.FragmentDeviceBinding
 
 class DeviceFragment : Fragment() {
@@ -63,6 +64,7 @@ class DeviceFragment : Fragment() {
                             cardSent.visibility = View.VISIBLE
                         }
                     }
+                    deviceViewModel.mode.value = Mode.values()[position]
                 }
 
                 override fun onNothingSelected(parentView: AdapterView<*>?) {}

@@ -1,6 +1,5 @@
 package com.barros.blecentralperipheral.advertising.ble
 
-import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGattServer
 import android.bluetooth.BluetoothGattServerCallback
 import android.bluetooth.BluetoothGattService
@@ -20,20 +19,36 @@ class BLEPeripheralAdvertising(
     private val context: Context,
     private val bluetoothManager: BluetoothManager
 ) {
-    private val uuid: UUID = UUID.fromString(context.getString(R.string.uuid_advertising))
-    inner class GattServerCallback : BluetoothGattServerCallback()
-    var gattServerCallback: GattServerCallback = GattServerCallback()
-    private var bluetoothLeAdvertiser: BluetoothLeAdvertiser = BluetoothAdapter.getDefaultAdapter().bluetoothLeAdvertiser
-    lateinit var bluetoothGattServer: BluetoothGattServer
+    private val uuidAdvertisingService: UUID = UUID.fromString(context.getString(R.string.uuid_advertising_service))
 
-    fun startAdvertise(sendingMessage: String) {
-        Log.d(TAG, "Start Advertise")
-        bluetoothGattServer = bluetoothManager.openGattServer(context, gattServerCallback)
+    private lateinit var bluetoothGattServer: BluetoothGattServer
+    private lateinit var bluetoothLeAdvertiser: BluetoothLeAdvertiser
 
-        val bluetoothGattService = BluetoothGattService(uuid, BluetoothGattService.SERVICE_TYPE_PRIMARY)
-        bluetoothGattServer.addService(bluetoothGattService)
+    private lateinit var sentValue: String
 
-        val parcelUuid = ParcelUuid(uuid)
+    fun start(value: String) {
+        sentValue = value
+        startAdvertising()
+        startServer()
+    }
+
+    fun stop() {
+        stopServer()
+        stopAdvertising()
+    }
+
+    private fun startAdvertising() {
+        Log.i(TAG, "Start Advertising")
+
+        val bluetoothAdapter = bluetoothManager.adapter
+        bluetoothLeAdvertiser = bluetoothAdapter.bluetoothLeAdvertiser
+
+        if (bluetoothLeAdvertiser == null) {
+            Log.e(TAG, "Failed to create advertiser")
+            return
+        }
+
+        val parcelUuid = ParcelUuid(uuidAdvertisingService)
 
         val advertiseSettings = AdvertiseSettings.Builder().apply {
             setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED)
@@ -47,7 +62,7 @@ class BLEPeripheralAdvertising(
         }.build()
 
         val scanResponse = AdvertiseData.Builder().apply {
-            addServiceData(parcelUuid, sendingMessage.toByteArray(Charsets.UTF_8))
+            addServiceData(parcelUuid, sentValue.toByteArray(Charsets.UTF_8))
         }.build()
 
         bluetoothLeAdvertiser.startAdvertising(
@@ -58,19 +73,55 @@ class BLEPeripheralAdvertising(
         )
     }
 
-    fun stopAdvertise() {
-        Log.d(TAG, "Stop Advertise")
+    private fun stopAdvertising() {
+        Log.i(TAG, "Stop Advertising")
+
+        if (bluetoothLeAdvertiser == null) {
+            return
+        }
         bluetoothLeAdvertiser.stopAdvertising(advertiseCallback)
+    }
+
+    private fun startServer() {
+        Log.i(TAG, "Start Server")
+
+        bluetoothGattServer = bluetoothManager.openGattServer(context, gattServerCallback)
+
+        if (bluetoothGattServer == null) {
+            Log.e(TAG, "Failed to create GATT server")
+            return
+        }
+
+        bluetoothGattServer.addService(createService())
+    }
+
+    private fun stopServer() {
+        Log.i(TAG, "Stop Server")
+
+        if (bluetoothGattServer == null) {
+            return
+        }
         bluetoothGattServer.close()
+    }
+
+    private fun createService(): BluetoothGattService {
+        Log.i(TAG, "Create Service")
+
+        val bluetoothGattService = BluetoothGattService(uuidAdvertisingService, BluetoothGattService.SERVICE_TYPE_PRIMARY)
+        bluetoothGattServer.addService(bluetoothGattService)
+
+        return bluetoothGattService
     }
 
     private val advertiseCallback = object : AdvertiseCallback() {
         override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
-            Log.d(TAG, "Peripheral advertise started.")
+            Log.d(TAG, "Peripheral advertise started")
         }
 
         override fun onStartFailure(errorCode: Int) {
-            Log.d(TAG, "Peripheral advertise failed: $errorCode")
+            Log.e(TAG, "Peripheral advertise failed: $errorCode")
         }
     }
+
+    private val gattServerCallback = object : BluetoothGattServerCallback() {}
 }
