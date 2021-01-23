@@ -1,6 +1,13 @@
 package com.barros.blecentralperipheral.connect.devicefragment
 
-import android.bluetooth.*
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCallback
+import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
+import android.bluetooth.BluetoothGattService
+import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothProfile
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -10,7 +17,7 @@ import com.barros.blecentralperipheral.R
 import com.barros.blecentralperipheral.TAG
 import com.barros.blecentralperipheral.connect.model.BleItem
 import com.barros.blecentralperipheral.connect.peripheralfragment.Mode
-import java.util.*
+import java.util.UUID
 
 class DeviceViewModel(val context: Context, item: BleItem) : ViewModel() {
 

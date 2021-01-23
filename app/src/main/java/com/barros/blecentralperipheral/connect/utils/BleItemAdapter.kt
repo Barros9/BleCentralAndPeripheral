@@ -23,17 +23,17 @@ class BleItemAdapter(private val onClickListener: OnClickListener) :
     class ItemViewHolder(private val binding: BleItemBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: BleItem, onClickListener: OnClickListener) {
             binding.bleItem = item
-            binding.characteristic.setOnClickListener { onClickListener.onCharacteristicClick(item) }
+            binding.information.setOnClickListener { onClickListener.onInformationClick(item) }
             binding.connect.setOnClickListener { onClickListener.onConnectClick(item) }
             binding.executePendingBindings()
         }
     }
 
     class OnClickListener(
-        val clickCharacteristicListener: (item: BleItem) -> Unit,
+        val clickInformationListener: (item: BleItem) -> Unit,
         val clickConnectListener: (item: BleItem) -> Unit
     ) {
-        fun onCharacteristicClick(item: BleItem) = clickCharacteristicListener(item)
+        fun onInformationClick(item: BleItem) = clickInformationListener(item)
         fun onConnectClick(item: BleItem) = clickConnectListener(item)
     }
 }

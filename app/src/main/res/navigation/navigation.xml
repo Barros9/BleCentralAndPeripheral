@@ -54,7 +54,7 @@
     </fragment>
     <dialog
         android:id="@+id/characteristicFragment"
-        android:name="com.barros.blecentralperipheral.connect.characteristicfragment.CharacteristicFragment"
+        android:name="com.barros.blecentralperipheral.connect.informationfragment.InformationFragment"
         android:label="CharacteristicFragment" >
         <argument
             android:name="bleItem"

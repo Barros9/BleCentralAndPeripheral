@@ -9,7 +9,7 @@
             type="android.view.View"/>
         <variable
             name="viewModel"
-            type="com.barros.blecentralperipheral.connect.characteristicfragment.CharacteristicViewModel" />
+            type="com.barros.blecentralperipheral.connect.informationfragment.InformationViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -22,7 +22,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/itemList"
             android:layout_width="0dp"
-            android:layout_height="100dp"
+            android:layout_height="300dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
@@ -33,16 +33,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0"
-            app:listServiceDataItem="@{viewModel.serviceDataItems}" />
+            app:listInformationItem="@{viewModel.informationItems}" />
 
         <TextView
             android:id="@+id/no_characteristic"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/no_characteristic_read"
+            android:text="@string/no_information_read"
             android:textColor="@color/colorAccent"
             android:textSize="20sp"
-            android:visibility="@{viewModel.serviceDataItems.size == 0 ? v.VISIBLE : v.GONE}"
+            android:visibility="@{viewModel.informationItems.size == 0 ? v.VISIBLE : v.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

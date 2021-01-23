@@ -1,4 +1,4 @@
-package com.barros.blecentralperipheral.connect.characteristicfragment
+package com.barros.blecentralperipheral.connect.informationfragment
 
 import android.Manifest
 import android.bluetooth.BluetoothManager
@@ -8,20 +8,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.barros.blecentralperipheral.connect.ble.BLECharacteristic
+import com.barros.blecentralperipheral.connect.ble.BLEInformation
 import com.barros.blecentralperipheral.connect.model.BleItem
-import com.barros.blecentralperipheral.connect.model.ServiceDataItem
+import com.barros.blecentralperipheral.connect.model.InformationItem
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-class CharacteristicViewModel(val context: Context, item: BleItem) : ViewModel() {
+class InformationViewModel(val context: Context, item: BleItem) : ViewModel() {
 
     private val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
-    private val bleCentral = BLECharacteristic()
+    private val bleCentral = BLEInformation()
 
-    private val _serviceDataItems = MutableLiveData<List<ServiceDataItem>>(mutableListOf())
-    val serviceDataItems: LiveData<List<ServiceDataItem>> = _serviceDataItems
+    private val _serviceDataItems = MutableLiveData<List<InformationItem>>(mutableListOf())
+    val informationItems: LiveData<List<InformationItem>> = _serviceDataItems
 
     private val _requestBluetooth = MutableLiveData(false)
     val requestBluetooth: LiveData<Boolean> = _requestBluetooth
@@ -34,7 +34,7 @@ class CharacteristicViewModel(val context: Context, item: BleItem) : ViewModel()
 
     init {
         if (hasPermission()) {
-            bleCentral.getServiceDataListByAddress(item.address)
+            bleCentral.getInformationByAddress(item.address)
             observeServiceDataList()
         }
     }

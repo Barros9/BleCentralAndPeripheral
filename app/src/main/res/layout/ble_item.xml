@@ -64,7 +64,7 @@
                     tools:text="Mac Address" />
 
                 <TextView
-                    android:id="@+id/characteristic"
+                    android:id="@+id/information"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -73,7 +73,7 @@
                     android:layout_marginBottom="8dp"
                     android:padding="4dp"
                     android:background="@color/colorPrimary"
-                    android:text="@string/characteristic"
+                    android:text="@string/information"
                     android:textColor="@color/colorAccent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/connect"
@@ -93,11 +93,11 @@
                     android:text="@string/connect"
                     android:textColor="@color/colorAccent"
                     android:visibility="@{bleItem.isConnectable ? v.VISIBLE : v.GONE}"
-                    app:layout_constraintBottom_toBottomOf="@+id/characteristic"
+                    app:layout_constraintBottom_toBottomOf="@+id/information"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toEndOf="@+id/characteristic"
-                    app:layout_constraintTop_toTopOf="@+id/characteristic"
+                    app:layout_constraintStart_toEndOf="@+id/information"
+                    app:layout_constraintTop_toTopOf="@+id/information"
                     app:layout_constraintVertical_bias="0.0" />
 
 

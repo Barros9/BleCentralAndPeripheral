@@ -96,7 +96,6 @@ class BLEPeripheralAdvertising(
 
         override fun onStartFailure(errorCode: Int) {
             Log.e(TAG, "Peripheral advertise failed: $errorCode")
-
         }
     }
 

@@ -1,6 +1,14 @@
 package com.barros.blecentralperipheral.connect.ble
 
-import android.bluetooth.*
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
+import android.bluetooth.BluetoothGattServer
+import android.bluetooth.BluetoothGattServerCallback
+import android.bluetooth.BluetoothGattService
+import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
@@ -10,7 +18,8 @@ import android.os.ParcelUuid
 import android.util.Log
 import com.barros.blecentralperipheral.R
 import com.barros.blecentralperipheral.TAG
-import java.util.*
+import java.util.Arrays
+import java.util.UUID
 
 class BLEPeripheralConnect(
     private val context: Context,
@@ -226,7 +235,6 @@ class BLEPeripheralConnect(
                     0,
                     null
                 )
-
             }
         }
 

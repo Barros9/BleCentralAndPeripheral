@@ -3,7 +3,7 @@ package com.barros.blecentralperipheral.connect.utils
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.barros.blecentralperipheral.connect.model.BleItem
-import com.barros.blecentralperipheral.connect.model.ServiceDataItem
+import com.barros.blecentralperipheral.connect.model.InformationItem
 
 @BindingAdapter("listBleItem")
 fun bindBleItemRecyclerView(recyclerView: RecyclerView, data: List<BleItem>) {
@@ -12,9 +12,9 @@ fun bindBleItemRecyclerView(recyclerView: RecyclerView, data: List<BleItem>) {
     adapter.notifyDataSetChanged()
 }
 
-@BindingAdapter("listServiceDataItem")
-fun bindServiceDataRecyclerView(recyclerView: RecyclerView, data: List<ServiceDataItem>) {
-    val adapter = recyclerView.adapter as ServiceDataItemAdapter
+@BindingAdapter("listInformationItem")
+fun bindInformationItemRecyclerView(recyclerView: RecyclerView, data: List<InformationItem>) {
+    val adapter = recyclerView.adapter as InformationAdapter
     adapter.submitList(data)
     adapter.notifyDataSetChanged()
 }

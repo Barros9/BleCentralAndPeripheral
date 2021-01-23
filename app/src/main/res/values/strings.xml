@@ -25,9 +25,10 @@
     <string name="write">Write</string>
     <string name="read_characteristic">Read Characteristic</string>
     <string name="characteristic">Characteristic</string>
+    <string name="information">Information</string>
     <string name="uuid_text">UUID:</string>
     <string name="data">Data:</string>
-    <string name="no_characteristic_read">No characteristic read</string>
+    <string name="no_information_read">No information read</string>
     <string name="choose_mode">Choose mode:</string>
     <string name="writing">Writing:</string>
     <string name="click_to_read">Click to read</string>

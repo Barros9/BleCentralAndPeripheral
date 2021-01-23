@@ -24,3 +24,14 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+task installGitHook(type: Copy) {
+    def lintingConfigScript = new File(rootProject.rootDir, '.git/hooks/pre-commit')
+    if (!lintingConfigScript.exists()) {
+        from new File(rootProject.rootDir, '.githooks/pre-commit')
+        into { new File(rootProject.rootDir, '.git/hooks') }
+        fileMode 0777
+    }
+}
+
+tasks.getByPath('app:preBuild').dependsOn installGitHook

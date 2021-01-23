@@ -1,4 +1,4 @@
-package com.barros.blecentralperipheral.connect.characteristicfragment
+package com.barros.blecentralperipheral.connect.informationfragment
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
@@ -17,11 +17,11 @@ import com.barros.blecentralperipheral.REQUEST_FINE_LOCATION
 import com.barros.blecentralperipheral.TAG
 import com.barros.blecentralperipheral.connect.devicefragment.DeviceFragmentArgs
 import com.barros.blecentralperipheral.connect.model.BleItem
-import com.barros.blecentralperipheral.connect.utils.ServiceDataItemAdapter
-import com.barros.blecentralperipheral.databinding.FragmentCharacteristicBinding
+import com.barros.blecentralperipheral.connect.utils.InformationAdapter
+import com.barros.blecentralperipheral.databinding.FragmentInformationBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-class CharacteristicFragment : BottomSheetDialogFragment() {
+class InformationFragment : BottomSheetDialogFragment() {
 
     private lateinit var bleItem: BleItem
 
@@ -34,12 +34,12 @@ class CharacteristicFragment : BottomSheetDialogFragment() {
             bleItem = DeviceFragmentArgs.fromBundle(it).bleItem
         }
 
-        val characteristicViewModelFactory = CharacteristicViewModelFactory(requireContext(), bleItem)
-        val characteristicViewModel = ViewModelProvider(this, characteristicViewModelFactory).get(CharacteristicViewModel::class.java)
+        val characteristicViewModelFactory = InformationViewModelFactory(requireContext(), bleItem)
+        val characteristicViewModel = ViewModelProvider(this, characteristicViewModelFactory).get(InformationViewModel::class.java)
 
-        return FragmentCharacteristicBinding.inflate(inflater).apply {
+        return FragmentInformationBinding.inflate(inflater).apply {
             viewModel = characteristicViewModel
-            lifecycleOwner = this@CharacteristicFragment
+            lifecycleOwner = this@InformationFragment
 
             characteristicViewModel.requestBluetooth.observe(viewLifecycleOwner, {
                 val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
@@ -60,7 +60,7 @@ class CharacteristicFragment : BottomSheetDialogFragment() {
                 }
             })
 
-            itemList.adapter = ServiceDataItemAdapter()
+            itemList.adapter = InformationAdapter()
         }.root
     }
 

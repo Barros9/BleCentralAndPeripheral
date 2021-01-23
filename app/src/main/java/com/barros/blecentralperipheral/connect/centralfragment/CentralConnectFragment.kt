@@ -35,7 +35,7 @@ class CentralConnectFragment : Fragment() {
 
             val adapter = BleItemAdapter(
                 BleItemAdapter.OnClickListener(
-                    clickCharacteristicListener = {
+                    clickInformationListener = {
                         findNavController().navigate(CentralConnectFragmentDirections.actionCentralConnectFragmentToCharacteristicFragment(it))
                     },
                     clickConnectListener = {
