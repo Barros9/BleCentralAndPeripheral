@@ -15,8 +15,8 @@ import kotlinx.coroutines.flow.consumeAsFlow
 
 class BLECentralConnect {
     private val bleScanner: BluetoothLeScanner = BluetoothAdapter.getDefaultAdapter().bluetoothLeScanner
-    private val bleItemList = mutableListOf<BleItem>()
-    private val bleItemListChannel = Channel<List<BleItem>>()
+    private var bleItemList = mutableListOf<BleItem>()
+    private var bleItemListChannel = Channel<List<BleItem>>()
 
     fun startScan() {
         Log.d(TAG, "Start Scan")
@@ -31,9 +31,6 @@ class BLECentralConnect {
             .setReportDelay(0)
             .build()
 
-//        TODO
-//        bleItemList = mutableListOf()
-//        bleItemListChannel = Channel()
         bleScanner.startScan(filters, settings, leScanCallback)
     }
 
@@ -41,7 +38,6 @@ class BLECentralConnect {
         Log.d(TAG, "Stop Scan")
         bleScanner.stopScan(leScanCallback)
         bleItemList.clear()
-        bleItemListChannel.close()
     }
 
     fun getBleItemListFlow(): Flow<List<BleItem>> = bleItemListChannel.consumeAsFlow()

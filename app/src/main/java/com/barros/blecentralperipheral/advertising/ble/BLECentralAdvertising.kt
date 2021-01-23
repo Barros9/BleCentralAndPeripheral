@@ -38,7 +38,6 @@ class BLECentralAdvertising(context: Context) {
     fun stopScan() {
         Log.i(TAG, "Stop Scan")
         bleScanner.stopScan(leScanCallback)
-        channel.close()
     }
 
     fun getResponseFlow(): Flow<String> = channel.consumeAsFlow()
