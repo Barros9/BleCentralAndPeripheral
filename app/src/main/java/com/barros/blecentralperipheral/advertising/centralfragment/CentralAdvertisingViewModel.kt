@@ -11,6 +11,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.barros.blecentralperipheral.advertising.ble.BLECentralAdvertising
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.launch
 
 class CentralAdvertisingViewModel(application: Application) : AndroidViewModel(application) {
@@ -52,9 +53,11 @@ class CentralAdvertisingViewModel(application: Application) : AndroidViewModel(a
 
     private fun observeResponse() {
         viewModelScope.launch {
-            bleCentral.getResponseFlow().collect {
-                _receiving.value = it
-            }
+            bleCentral.getResponseFlow()
+                .conflate()
+                .collect {
+                    _receiving.value = it
+                }
         }
     }
 

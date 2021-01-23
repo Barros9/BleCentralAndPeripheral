@@ -20,10 +20,8 @@ class BLEPeripheralAdvertising(
     private val bluetoothManager: BluetoothManager
 ) {
     private val uuidAdvertisingService: UUID = UUID.fromString(context.getString(R.string.uuid_advertising_service))
-
     private lateinit var bluetoothGattServer: BluetoothGattServer
     private lateinit var bluetoothLeAdvertiser: BluetoothLeAdvertiser
-
     private lateinit var sentValue: String
 
     fun start(value: String) {
@@ -42,11 +40,6 @@ class BLEPeripheralAdvertising(
 
         val bluetoothAdapter = bluetoothManager.adapter
         bluetoothLeAdvertiser = bluetoothAdapter.bluetoothLeAdvertiser
-
-        if (bluetoothLeAdvertiser == null) {
-            Log.e(TAG, "Failed to create advertiser")
-            return
-        }
 
         val parcelUuid = ParcelUuid(uuidAdvertisingService)
 
@@ -75,41 +68,24 @@ class BLEPeripheralAdvertising(
 
     private fun stopAdvertising() {
         Log.i(TAG, "Stop Advertising")
-
-        if (bluetoothLeAdvertiser == null) {
-            return
-        }
         bluetoothLeAdvertiser.stopAdvertising(advertiseCallback)
     }
 
     private fun startServer() {
         Log.i(TAG, "Start Server")
-
         bluetoothGattServer = bluetoothManager.openGattServer(context, gattServerCallback)
-
-        if (bluetoothGattServer == null) {
-            Log.e(TAG, "Failed to create GATT server")
-            return
-        }
-
         bluetoothGattServer.addService(createService())
     }
 
     private fun stopServer() {
         Log.i(TAG, "Stop Server")
-
-        if (bluetoothGattServer == null) {
-            return
-        }
         bluetoothGattServer.close()
     }
 
     private fun createService(): BluetoothGattService {
         Log.i(TAG, "Create Service")
-
         val bluetoothGattService = BluetoothGattService(uuidAdvertisingService, BluetoothGattService.SERVICE_TYPE_PRIMARY)
         bluetoothGattServer.addService(bluetoothGattService)
-
         return bluetoothGattService
     }
 
@@ -120,6 +96,7 @@ class BLEPeripheralAdvertising(
 
         override fun onStartFailure(errorCode: Int) {
             Log.e(TAG, "Peripheral advertise failed: $errorCode")
+
         }
     }
 
