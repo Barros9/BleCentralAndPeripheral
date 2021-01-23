@@ -1,12 +1,6 @@
 package com.barros.blecentralperipheral.connect.devicefragment
 
-import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothGatt
-import android.bluetooth.BluetoothGattCallback
-import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattService
-import android.bluetooth.BluetoothManager
-import android.bluetooth.BluetoothProfile
+import android.bluetooth.*
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -16,7 +10,7 @@ import com.barros.blecentralperipheral.R
 import com.barros.blecentralperipheral.TAG
 import com.barros.blecentralperipheral.connect.model.BleItem
 import com.barros.blecentralperipheral.connect.peripheralfragment.Mode
-import java.util.UUID
+import java.util.*
 
 class DeviceViewModel(val context: Context, item: BleItem) : ViewModel() {
 
@@ -28,6 +22,7 @@ class DeviceViewModel(val context: Context, item: BleItem) : ViewModel() {
 
     private val uuidConnect: UUID = UUID.fromString(context.getString(R.string.uuid_connect_service))
     private val uuidCharacteristic: UUID = UUID.fromString(context.getString(R.string.uuid_characteristic))
+    private val uuidDescriptor: UUID = UUID.fromString(context.getString(R.string.uuid_descriptor))
 
     val mode = MutableLiveData(Mode.READ)
 
@@ -90,11 +85,11 @@ class DeviceViewModel(val context: Context, item: BleItem) : ViewModel() {
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             when (newState) {
                 BluetoothProfile.STATE_CONNECTED -> {
-                    Log.d(TAG, "Connected GATT server")
+                    Log.i(TAG, "Connected GATT server")
                     gatt.discoverServices()
                 }
                 BluetoothProfile.STATE_DISCONNECTED -> {
-                    Log.d(TAG, "Disconnected GATT server")
+                    Log.i(TAG, "Disconnected GATT server")
                 }
             }
         }
@@ -102,8 +97,18 @@ class DeviceViewModel(val context: Context, item: BleItem) : ViewModel() {
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             when (status) {
                 BluetoothGatt.GATT_SUCCESS -> {
-                    Log.d(TAG, "onServicesDiscovered gattSuccess: Services discovered")
+                    Log.i(TAG, "onServicesDiscovered gattSuccess: Services discovered")
                     bleDiscoveredServices = gatt.services
+
+                    bleDiscoveredServices.first { it.uuid == uuidConnect }.characteristics.first { it.uuid == uuidCharacteristic }?.let { characteristic ->
+                        Log.i(TAG, "setCharacteristicNotification")
+                        bluetoothGatt.setCharacteristicNotification(characteristic, true)
+
+                        characteristic.descriptors.first { it.uuid == uuidDescriptor }?.let {
+                            it.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                            gatt.writeDescriptor(it) // todo
+                        }
+                    }
                 }
                 else -> Log.d(TAG, "onServicesDiscovered status received:: $status")
             }
@@ -114,16 +119,44 @@ class DeviceViewModel(val context: Context, item: BleItem) : ViewModel() {
             characteristic: BluetoothGattCharacteristic,
             status: Int
         ) {
+            Log.i(TAG, "onCharacteristicRead")
             when (status) {
                 BluetoothGatt.GATT_SUCCESS -> {
                     val value = String(characteristic.value)
-                    Log.d(TAG, "onCharacteristicRead gattSuccess: $value")
+                    Log.i(TAG, "onCharacteristicRead gattSuccess: $value")
                     _readValue.postValue(value)
+                    _notifyValue.postValue(value)
                 }
                 else -> {
-                    Log.d(TAG, "onCharacteristicRead status received: $status")
+                    Log.i(TAG, "onCharacteristicRead status received: $status")
                 }
             }
         }
+
+        override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
+            Log.i(TAG, "onCharacteristicChanged")
+            if (characteristic != null && characteristic.uuid == uuidCharacteristic) {
+                val value = String(characteristic.value)
+                Log.i(TAG, "onCharacteristicChanged $value")
+                _notifyValue.postValue(value)
+            }
+        }
+
+        override fun onDescriptorWrite(
+            gatt: BluetoothGatt?,
+            descriptor: BluetoothGattDescriptor?,
+            status: Int
+        ) {
+            Log.i(TAG, "onDescriptorWrite")
+            if (uuidDescriptor == descriptor?.uuid) {
+                val characteristic = gatt?.services?.first { it.uuid == uuidConnect }?.getCharacteristic(uuidCharacteristic)
+                gatt?.readCharacteristic(characteristic)
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        disconnect()
     }
 }

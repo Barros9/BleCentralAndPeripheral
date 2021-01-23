@@ -16,6 +16,7 @@ import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.barros.blecentralperipheral.R
@@ -73,14 +74,10 @@ class PeripheralConnectFragment : Fragment() {
                 override fun onNothingSelected(parentView: AdapterView<*>?) {}
             }
 
-            sendingValue.addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(s: Editable) {}
-                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                    peripheralConnectViewModel.sendingValue.value = s.toString()
-                    peripheralConnectViewModel.updateSentValue()
-                }
-            })
+            sendingValue.doOnTextChanged { text, _, _, _ ->
+                peripheralConnectViewModel.sendingValue.value = text.toString()
+                peripheralConnectViewModel.readMode()
+            }
 
             peripheralConnectViewModel.requestBluetooth.observe(viewLifecycleOwner, {
                 val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)

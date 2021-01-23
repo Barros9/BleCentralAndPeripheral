@@ -12,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import com.barros.blecentralperipheral.connect.ble.BLECentralConnect
 import com.barros.blecentralperipheral.connect.model.BleItem
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.launch
 
 class CentralConnectViewModel(application: Application) : AndroidViewModel(application) {
@@ -54,9 +55,11 @@ class CentralConnectViewModel(application: Application) : AndroidViewModel(appli
 
     private fun observeBleItemList() {
         viewModelScope.launch {
-            bleCentral.getBleItemListFlow().collect {
-                _bleItems.value = it
-            }
+            bleCentral.getBleItemListFlow()
+                .conflate()
+                .collect {
+                    _bleItems.value = it
+                }
         }
     }
 

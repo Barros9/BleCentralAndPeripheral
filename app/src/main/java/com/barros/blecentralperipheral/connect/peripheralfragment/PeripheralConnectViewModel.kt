@@ -3,12 +3,18 @@ package com.barros.blecentralperipheral.connect.peripheralfragment
 import android.Manifest
 import android.app.Application
 import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothProfile
 import android.content.Context
+import android.util.Log
 import androidx.core.content.PermissionChecker
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import com.barros.blecentralperipheral.TAG
 import com.barros.blecentralperipheral.connect.ble.BLEPeripheralConnect
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class PeripheralConnectViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -47,7 +53,12 @@ class PeripheralConnectViewModel(application: Application) : AndroidViewModel(ap
             true -> {
                 if (hasPermission()) {
                     _peripheralSwitch.value = true
-                    updateSentValue()
+                    when (mode.value) {
+                        Mode.READ -> readMode()
+                        Mode.NOTIFY -> notifyMode()
+                        Mode.WRITE -> TODO()
+                        null -> TODO()
+                    }
                 }
             }
             false -> {
@@ -62,7 +73,7 @@ class PeripheralConnectViewModel(application: Application) : AndroidViewModel(ap
         }
     }
 
-    fun updateSentValue() {
+    fun readMode() {
         when {
             !_peripheralSwitch.value!! -> {
                 _isShowError.value = true
@@ -79,6 +90,27 @@ class PeripheralConnectViewModel(application: Application) : AndroidViewModel(ap
                 _isShowError.value = false
                 startBlePeripheral()
             }
+        }
+    }
+
+    private fun notifyMode() {
+        _sentValue.value = "Nothing"
+        startBlePeripheral()
+    }
+
+    fun startNotify() {
+        val devices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
+        if (devices.isNotEmpty()) {
+            viewModelScope.launch {
+                repeat(10) {
+                    _sentValue.value = it.toString()
+                    Log.d(TAG, "Notify ${_sentValue.value}")
+                    delay(3_000)
+                    blePeripheral.notifyValue(it.toString())
+                }
+            }
+        } else {
+            _showToast.value = "No device connected"
         }
     }
 
