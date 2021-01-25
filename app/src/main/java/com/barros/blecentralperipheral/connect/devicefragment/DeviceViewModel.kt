@@ -32,6 +32,7 @@ class DeviceViewModel(val context: Context, item: BleItem) : ViewModel() {
     private val uuidDescriptor: UUID = UUID.fromString(context.getString(R.string.uuid_descriptor))
 
     val mode = MutableLiveData(Mode.READ)
+    val sendingValue = MutableLiveData("")
 
     private val _bleItem = MutableLiveData<BleItem>()
     val bleItem: LiveData<BleItem> = _bleItem
@@ -88,6 +89,30 @@ class DeviceViewModel(val context: Context, item: BleItem) : ViewModel() {
         }
     }
 
+    fun write() {
+        when {
+            !_connectSwitch.value!! -> {
+                _isShowError.value = true
+                _writeValue.value = "Nothing"
+                _errorMessage.value = "Active connect switch"
+            }
+            sendingValue.value!!.isBlank() || sendingValue.value!!.length < 4 -> {
+                _isShowError.value = true
+                _writeValue.value = "Nothing"
+                _errorMessage.value = "Insert 4 numbers"
+            }
+            else -> {
+                _writeValue.value = sendingValue.value
+                _isShowError.value = false
+
+                val characteristic = bluetoothGatt.getService(uuidConnect).getCharacteristic(uuidCharacteristic)
+                characteristic.writeType = BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+                characteristic.value = _writeValue.value?.toByteArray(Charsets.UTF_8)
+                bluetoothGatt.writeCharacteristic(characteristic)
+            }
+        }
+    }
+
     private val bluetoothGattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             when (newState) {
@@ -113,7 +138,7 @@ class DeviceViewModel(val context: Context, item: BleItem) : ViewModel() {
 
                         characteristic.descriptors.first { it.uuid == uuidDescriptor }?.let {
                             it.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                            gatt.writeDescriptor(it) // todo
+                            gatt.writeDescriptor(it)
                         }
                     }
                 }

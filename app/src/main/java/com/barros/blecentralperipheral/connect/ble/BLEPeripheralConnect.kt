@@ -20,6 +20,9 @@ import com.barros.blecentralperipheral.R
 import com.barros.blecentralperipheral.TAG
 import java.util.Arrays
 import java.util.UUID
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.consumeAsFlow
 
 class BLEPeripheralConnect(
     private val context: Context,
@@ -29,11 +32,11 @@ class BLEPeripheralConnect(
     private val uuidCharacteristic: UUID = UUID.fromString(context.getString(R.string.uuid_characteristic))
     private val uuidDescriptor: UUID = UUID.fromString(context.getString(R.string.uuid_descriptor))
 
+    private lateinit var sentValue: String
     private lateinit var bluetoothGattServer: BluetoothGattServer
     private lateinit var bluetoothLeAdvertiser: BluetoothLeAdvertiser
     private val registeredDevices: MutableList<BluetoothDevice> = mutableListOf()
-
-    private lateinit var sentValue: String
+    private val channel = Channel<String>()
 
     fun start(value: String) {
         sentValue = value
@@ -44,23 +47,6 @@ class BLEPeripheralConnect(
     fun stop() {
         stopServer()
         stopAdvertising()
-    }
-
-    fun notifyValue(value: String) {
-        sentValue = value
-        bluetoothManager.getConnectedDevices(BluetoothProfile.GATT).forEach { device ->
-            val bluetoothGattCharacteristic = bluetoothGattServer.getService(uuidConnectService).getCharacteristic(
-                uuidCharacteristic
-            )
-            val updateValue = sentValue.toByteArray(Charsets.UTF_8)
-            Log.i(TAG, "notifyValue ${String(updateValue)}")
-            bluetoothGattCharacteristic.value = updateValue
-            bluetoothGattServer.notifyCharacteristicChanged(
-                device,
-                bluetoothGattCharacteristic,
-                false
-            )
-        }
     }
 
     private fun startAdvertising() {
@@ -121,20 +107,22 @@ class BLEPeripheralConnect(
         return bluetoothGattService
     }
 
-    private fun notifyRegisteredDevices() {
-        if (registeredDevices.isEmpty()) {
-            Log.i(TAG, "No subscribers registered")
-            return
-        }
-        Log.i(TAG, "Sending update to " + registeredDevices.size + " subscribers")
-        for (device in registeredDevices) {
-            val characteristic: BluetoothGattCharacteristic = bluetoothGattServer
-                .getService(uuidConnectService)
-                .getCharacteristic(uuidCharacteristic)
-            characteristic.value = sentValue.toByteArray(Charsets.UTF_8)
-            bluetoothGattServer.notifyCharacteristicChanged(device, characteristic, false)
+    fun notifyValue(value: String) {
+        sentValue = value
+        bluetoothManager.getConnectedDevices(BluetoothProfile.GATT).forEach { device ->
+            val bluetoothGattCharacteristic = bluetoothGattServer.getService(uuidConnectService).getCharacteristic(uuidCharacteristic)
+            val updateValue = sentValue.toByteArray(Charsets.UTF_8)
+            Log.i(TAG, "notifyValue ${String(updateValue)}")
+            bluetoothGattCharacteristic.value = updateValue
+            bluetoothGattServer.notifyCharacteristicChanged(
+                device,
+                bluetoothGattCharacteristic,
+                false
+            )
         }
     }
+
+    fun getWriteResponseFlow(): Flow<String> = channel.consumeAsFlow()
 
     private val advertiseCallback = object : AdvertiseCallback() {
         override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
@@ -190,19 +178,21 @@ class BLEPeripheralConnect(
             offset: Int,
             value: ByteArray?
         ) {
-            Log.i(TAG, "Write interactor")
             if (uuidCharacteristic == characteristic?.uuid) {
-                // listener
-                notifyRegisteredDevices()
+                value?.let {
+                    channel.offer(String(it))
+                }
             } else {
                 Log.i(TAG, "Invalid Characteristic Write: " + characteristic!!.uuid)
-                bluetoothGattServer.sendResponse(
-                    device,
-                    requestId,
-                    BluetoothGatt.GATT_FAILURE,
-                    0,
-                    null
-                )
+                if (responseNeeded) {
+                    bluetoothGattServer.sendResponse(
+                        device,
+                        requestId,
+                        BluetoothGatt.GATT_FAILURE,
+                        0,
+                        null
+                    )
+                }
             }
         }
 
@@ -213,10 +203,11 @@ class BLEPeripheralConnect(
             descriptor: BluetoothGattDescriptor?
         ) {
             if (uuidDescriptor == descriptor?.uuid) {
-                Log.i(TAG, "Configure read descriptor")
                 val value = if (registeredDevices.contains(device)) {
+                    Log.i(TAG, "onDescriptorReadRequest enable notification")
                     BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
                 } else {
+                    Log.i(TAG, "onDescriptorReadRequest disable notification")
                     BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
                 }
                 bluetoothGattServer.sendResponse(
@@ -253,7 +244,7 @@ class BLEPeripheralConnect(
                     device?.let {
                         registeredDevices.add(it)
                     }
-                } else {
+                } else if (Arrays.equals(BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE, value)) {
                     Log.i(TAG, "Unsubscribe device from notifications: $device")
                     registeredDevices.remove(device)
                 }

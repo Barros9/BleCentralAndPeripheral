@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.barros.blecentralperipheral.R
@@ -68,6 +69,10 @@ class DeviceFragment : Fragment() {
                 }
 
                 override fun onNothingSelected(parentView: AdapterView<*>?) {}
+            }
+
+            sendingValue.doOnTextChanged { text, _, _, _ ->
+                deviceViewModel.sendingValue.value = text.toString()
             }
         }.root
     }

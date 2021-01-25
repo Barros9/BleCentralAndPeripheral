@@ -34,4 +34,5 @@
     <string name="click_to_read">Click to read</string>
     <string name="click_to_notify">Click to notify</string>
     <string name="click_to_subscribe">Click to subscribe</string>
+    <string name="click_to_write">Click to write</string>
 </resources>

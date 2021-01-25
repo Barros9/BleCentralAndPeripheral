@@ -9,7 +9,7 @@ import com.barros.blecentralperipheral.connect.model.BleItem
 import com.barros.blecentralperipheral.databinding.BleItemBinding
 
 class BleItemAdapter(private val onClickListener: OnClickListener) :
-    ListAdapter<BleItem, BleItemAdapter.ItemViewHolder>(DiffCallbackBleItem()) {
+    ListAdapter<BleItem, BleItemAdapter.ItemViewHolder>(DiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         return ItemViewHolder(BleItemBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -36,14 +36,14 @@ class BleItemAdapter(private val onClickListener: OnClickListener) :
         fun onInformationClick(item: BleItem) = clickInformationListener(item)
         fun onConnectClick(item: BleItem) = clickConnectListener(item)
     }
-}
 
-class DiffCallbackBleItem : DiffUtil.ItemCallback<BleItem>() {
-    override fun areItemsTheSame(oldItem: BleItem, newItem: BleItem): Boolean {
-        return oldItem.name == newItem.name
-    }
+    class DiffCallback : DiffUtil.ItemCallback<BleItem>() {
+        override fun areItemsTheSame(oldItem: BleItem, newItem: BleItem): Boolean {
+            return oldItem.name == newItem.name
+        }
 
-    override fun areContentsTheSame(oldItem: BleItem, newItem: BleItem): Boolean {
-        return oldItem == newItem
+        override fun areContentsTheSame(oldItem: BleItem, newItem: BleItem): Boolean {
+            return oldItem == newItem
+        }
     }
 }

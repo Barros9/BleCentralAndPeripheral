@@ -14,6 +14,8 @@ import androidx.lifecycle.viewModelScope
 import com.barros.blecentralperipheral.TAG
 import com.barros.blecentralperipheral.connect.ble.BLEPeripheralConnect
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.launch
 
 class PeripheralConnectViewModel(application: Application) : AndroidViewModel(application) {
@@ -56,8 +58,8 @@ class PeripheralConnectViewModel(application: Application) : AndroidViewModel(ap
                     when (mode.value) {
                         Mode.READ -> readMode()
                         Mode.NOTIFY -> notifyMode()
-                        Mode.WRITE -> TODO()
-                        null -> TODO()
+                        Mode.WRITE -> writeMode()
+                        null -> Unit
                     }
                 }
             }
@@ -93,6 +95,14 @@ class PeripheralConnectViewModel(application: Application) : AndroidViewModel(ap
         }
     }
 
+    private fun startBlePeripheral() {
+        if (isAlreadyStarted) {
+            blePeripheral.stop()
+        }
+        blePeripheral.start(_sentValue.value!!)
+        isAlreadyStarted = true
+    }
+
     private fun notifyMode() {
         _sentValue.value = "Nothing"
         startBlePeripheral()
@@ -114,12 +124,20 @@ class PeripheralConnectViewModel(application: Application) : AndroidViewModel(ap
         }
     }
 
-    private fun startBlePeripheral() {
-        if (isAlreadyStarted) {
-            blePeripheral.stop()
+    private fun writeMode() {
+        _sentValue.value = "Nothing"
+        startBlePeripheral()
+        observeWrite()
+    }
+
+    private fun observeWrite() {
+        viewModelScope.launch {
+            blePeripheral.getWriteResponseFlow()
+                .conflate()
+                .collect {
+                    _sentValue.value = it
+                }
         }
-        blePeripheral.start(_sentValue.value!!)
-        isAlreadyStarted = true
     }
 
     private fun hasPermission(): Boolean {
