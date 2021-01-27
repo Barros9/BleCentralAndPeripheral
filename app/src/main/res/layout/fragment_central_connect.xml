@@ -58,8 +58,6 @@
                             android:id="@+id/activeScanText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_marginEnd="16dp"
                             android:text="@string/active_scan"
                             android:textAlignment="center"
                             android:textColor="@color/colorAccent"
@@ -67,7 +65,6 @@
                             app:layout_constraintBottom_toBottomOf="@+id/switchScan"
                             app:layout_constraintEnd_toStartOf="@+id/switchScan"
                             app:layout_constraintHorizontal_bias="0.5"
-                            app:layout_constraintHorizontal_chainStyle="packed"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="@+id/switchScan" />
 
@@ -75,18 +72,30 @@
                             android:id="@+id/switchScan"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
                             android:layout_marginTop="16dp"
-                            android:layout_marginEnd="16dp"
                             android:layout_marginBottom="16dp"
                             android:checked="@{viewModel.scanSwitch}"
                             android:onCheckedChanged="@{(button, on)-> viewModel.setScanSwitch(on)}"
                             android:textAlignment="gravity"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/timerText"
                             app:layout_constraintHorizontal_bias="0.5"
                             app:layout_constraintStart_toEndOf="@+id/activeScanText"
                             app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/timerText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/colorAccent"
+                            android:textSize="20sp"
+                            android:text="@{viewModel.timer}"
+                            tools:text="30"
+                            app:layout_constraintBottom_toBottomOf="@+id/switchScan"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintStart_toEndOf="@+id/switchScan"
+                            app:layout_constraintTop_toTopOf="@+id/switchScan" />
 
 
                     </androidx.constraintlayout.widget.ConstraintLayout>

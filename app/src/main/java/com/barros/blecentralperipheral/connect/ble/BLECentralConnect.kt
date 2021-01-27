@@ -47,12 +47,12 @@ class BLECentralConnect {
             super.onScanResult(callbackType, result)
 
             val bleItem = if (result.device.name != null) {
-                BleItem(result.device.name, result.device.address, result.isConnectable)
+                BleItem(result.device, result.device.name, result.device.address, result.isConnectable)
             } else {
-                BleItem("N/A", result.device.address, result.isConnectable)
+                BleItem(result.device, "N/A", result.device.address, result.isConnectable)
             }
 
-            if (!bleItemList.contains(bleItem)) {
+            if (bleItemList.firstOrNull { it.device == result.device } == null) {
                 bleItemList.add(bleItem)
                 Log.d(TAG, "Offer response $bleItemList")
                 bleItemListChannel.offer(bleItemList)
