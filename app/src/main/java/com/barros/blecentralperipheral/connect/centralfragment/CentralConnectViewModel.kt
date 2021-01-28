@@ -25,7 +25,7 @@ class CentralConnectViewModel(application: Application) : AndroidViewModel(appli
     private val context = getApplication<Application>().applicationContext
     private val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
-    private val bleCentral = BLECentralConnect()
+    private val bleCentral = BLECentralConnect(context)
 
     private val _scanSwitch = MutableLiveData(false)
     val scanSwitch: LiveData<Boolean> = _scanSwitch
