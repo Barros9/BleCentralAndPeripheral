@@ -7,14 +7,14 @@ import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.util.Log
-import com.barros.blecentralperipheral.TAG
-import com.barros.blecentralperipheral.connect.model.InformationItem
+import com.barros.blecentralperipheral.utils.TAG
+import com.barros.blecentralperipheral.utils.model.InformationItem
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
 
 class BLEInformation {
-    var bleScanner: BluetoothLeScanner = BluetoothAdapter.getDefaultAdapter().bluetoothLeScanner
+    private var bleScanner: BluetoothLeScanner = BluetoothAdapter.getDefaultAdapter().bluetoothLeScanner
 
     private val informationList = mutableListOf<InformationItem>()
     private val informationChannel = Channel<List<InformationItem>>()
@@ -37,7 +37,7 @@ class BLEInformation {
         bleScanner.startScan(filters, settings, leServiceDataCallback)
     }
 
-    fun getServiceDataListFlow(): Flow<List<InformationItem>> = informationChannel.consumeAsFlow()
+    fun getInformationListFlow(): Flow<List<InformationItem>> = informationChannel.consumeAsFlow()
 
     fun stopGetServiceDataListByAddress() {
         Log.d(TAG, "Stop getServiceDataListByAddress")

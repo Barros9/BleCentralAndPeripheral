@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/navigation"
-        app:startDestination="@id/mainFragment">
+    app:startDestination="@id/mainFragment">
 
     <fragment
             android:id="@+id/mainFragment"
@@ -50,7 +49,7 @@
         android:label="DeviceFragment" >
         <argument
             android:name="bleItem"
-            app:argType="com.barros.blecentralperipheral.connect.model.BleItem" />
+            app:argType="com.barros.blecentralperipheral.utils.model.BleItem" />
     </fragment>
     <dialog
         android:id="@+id/characteristicFragment"
@@ -58,6 +57,6 @@
         android:label="CharacteristicFragment" >
         <argument
             android:name="bleItem"
-            app:argType="com.barros.blecentralperipheral.connect.model.BleItem" />
+            app:argType="com.barros.blecentralperipheral.utils.model.BleItem" />
     </dialog>
 </navigation>

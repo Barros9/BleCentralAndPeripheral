@@ -1,18 +1,19 @@
 package com.barros.blecentralperipheral.connect.peripheralfragment
 
-import android.Manifest
 import android.app.Application
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.content.Context
-import android.util.Log
-import androidx.core.content.PermissionChecker
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.barros.blecentralperipheral.TAG
+import com.barros.blecentralperipheral.R
 import com.barros.blecentralperipheral.connect.ble.BLEPeripheralConnect
+import com.barros.blecentralperipheral.utils.PERMISSION_GRANTED
+import com.barros.blecentralperipheral.utils.checkPermissionGranted
+import com.barros.blecentralperipheral.utils.model.Mode
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.conflate
@@ -22,24 +23,18 @@ class PeripheralConnectViewModel(application: Application) : AndroidViewModel(ap
 
     private val context = getApplication<Application>().applicationContext
     private val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-    private val bluetoothAdapter = bluetoothManager.adapter
     private val blePeripheral = BLEPeripheralConnect(context, bluetoothManager)
     private var isAlreadyStarted = false
+    private lateinit var job: Job
 
     val sendingValue = MutableLiveData("")
     val mode = MutableLiveData(Mode.READ)
 
-    private val _sentValue = MutableLiveData("Nothing")
-    val sentValue: LiveData<String> = _sentValue
+    private val _value = MutableLiveData(context.getString(R.string.nothing))
+    val value: LiveData<String> = _value
 
     private val _peripheralSwitch = MutableLiveData(false)
     val peripheralSwitch: LiveData<Boolean> = _peripheralSwitch
-
-    private val _requestBluetooth = MutableLiveData(false)
-    val requestBluetooth: LiveData<Boolean> = _requestBluetooth
-
-    private val _requestLocation = MutableLiveData(false)
-    val requestLocation: LiveData<Boolean> = _requestLocation
 
     private val _isShowError = MutableLiveData(false)
     val isShowError: LiveData<Boolean> = _isShowError
@@ -53,13 +48,18 @@ class PeripheralConnectViewModel(application: Application) : AndroidViewModel(ap
     fun setPeripheralSwitch(isChecked: Boolean) {
         when (isChecked) {
             true -> {
-                if (hasPermission()) {
-                    _peripheralSwitch.value = true
-                    when (mode.value) {
-                        Mode.READ -> readMode()
-                        Mode.NOTIFY -> notifyMode()
-                        Mode.WRITE -> writeMode()
-                        null -> Unit
+                when (val resultCheckPermission = checkPermissionGranted(context)) {
+                    PERMISSION_GRANTED -> {
+                        _peripheralSwitch.value = true
+                        when (mode.value) {
+                            Mode.READ -> readMode()
+                            Mode.NOTIFY -> notifyMode()
+                            Mode.WRITE -> writeMode()
+                            null -> Unit
+                        }
+                    }
+                    else -> {
+                        _showToast.value = resultCheckPermission
                     }
                 }
             }
@@ -69,28 +69,9 @@ class PeripheralConnectViewModel(application: Application) : AndroidViewModel(ap
                 }
                 isAlreadyStarted = false
                 _peripheralSwitch.value = false
-                _isShowError.value = false
-                _sentValue.value = "Nothing"
-            }
-        }
-    }
 
-    fun readMode() {
-        when {
-            !_peripheralSwitch.value!! -> {
-                _isShowError.value = true
-                _sentValue.value = "Nothing"
-                _errorMessage.value = "Active peripheral switch"
-            }
-            sendingValue.value!!.isBlank() || sendingValue.value!!.length < 4 -> {
-                _isShowError.value = true
-                _sentValue.value = "Nothing"
-                _errorMessage.value = "Insert 4 numbers"
-            }
-            else -> {
-                _sentValue.value = sendingValue.value
                 _isShowError.value = false
-                startBlePeripheral()
+                _value.value = context.getString(R.string.nothing)
             }
         }
     }
@@ -99,33 +80,61 @@ class PeripheralConnectViewModel(application: Application) : AndroidViewModel(ap
         if (isAlreadyStarted) {
             blePeripheral.stop()
         }
-        blePeripheral.start(_sentValue.value!!)
+        blePeripheral.start(_value.value!!)
         isAlreadyStarted = true
     }
 
+    fun changeMode() {
+        if (isAlreadyStarted) {
+            blePeripheral.stop()
+            _value.value = context.getString(R.string.nothing)
+            cancelJob()
+            blePeripheral.start(_value.value!!)
+        }
+    }
+
+    fun readMode() {
+        when {
+            !_peripheralSwitch.value!! -> {
+                _isShowError.value = true
+                _value.value = context.getString(R.string.nothing)
+                _errorMessage.value = context.getString(R.string.active_peripheral_switch)
+            }
+            sendingValue.value!!.isBlank() || sendingValue.value!!.length < 4 -> {
+                _isShowError.value = true
+                _value.value = context.getString(R.string.nothing)
+                _errorMessage.value = context.getString(R.string.insert_four_numbers)
+            }
+            else -> {
+                _value.value = sendingValue.value
+                _isShowError.value = false
+                startBlePeripheral()
+            }
+        }
+    }
+
     private fun notifyMode() {
-        _sentValue.value = "Nothing"
+        _value.value = context.getString(R.string.nothing)
         startBlePeripheral()
     }
 
     fun startNotify() {
         val devices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
         if (devices.isNotEmpty()) {
-            viewModelScope.launch {
+            job = viewModelScope.launch {
                 repeat(10) {
-                    _sentValue.value = it.toString()
-                    Log.d(TAG, "Notify ${_sentValue.value}")
+                    _value.value = it.toString()
                     delay(3_000)
                     blePeripheral.notifyValue(it.toString())
                 }
             }
         } else {
-            _showToast.value = "No device connected"
+            _showToast.value = context.getString(R.string.no_device_connected)
         }
     }
 
     private fun writeMode() {
-        _sentValue.value = "Nothing"
+        _value.value = context.getString(R.string.nothing)
         startBlePeripheral()
         observeWrite()
     }
@@ -135,26 +144,15 @@ class PeripheralConnectViewModel(application: Application) : AndroidViewModel(ap
             blePeripheral.getWriteResponseFlow()
                 .conflate()
                 .collect {
-                    _sentValue.value = it
+                    _value.value = it
                 }
         }
     }
 
-    private fun hasPermission(): Boolean {
-        if (!bluetoothAdapter.isEnabled) {
-            _showToast.value = "Bluetooth not enabled"
-            _requestBluetooth.value = true
-            return false
-        } else if (!hasLocationPermission()) {
-            _showToast.value = "No location permission"
-            _requestLocation.value = true
-            return false
+    private fun cancelJob() {
+        if (this::job.isInitialized && job.isActive) {
+            job.cancel()
         }
-        return true
-    }
-
-    private fun hasLocationPermission(): Boolean {
-        return PermissionChecker.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PermissionChecker.PERMISSION_GRANTED
     }
 
     override fun onCleared() {
@@ -162,5 +160,6 @@ class PeripheralConnectViewModel(application: Application) : AndroidViewModel(ap
         if (isAlreadyStarted) {
             blePeripheral.stop()
         }
+        cancelJob()
     }
 }

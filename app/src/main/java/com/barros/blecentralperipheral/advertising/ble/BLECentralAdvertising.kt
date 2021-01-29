@@ -10,7 +10,7 @@ import android.content.Context
 import android.os.ParcelUuid
 import android.util.Log
 import com.barros.blecentralperipheral.R
-import com.barros.blecentralperipheral.TAG
+import com.barros.blecentralperipheral.utils.TAG
 import java.util.UUID
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -46,9 +46,7 @@ class BLECentralAdvertising(context: Context) {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             super.onScanResult(callbackType, result)
             result.scanRecord?.serviceData?.entries?.firstOrNull()?.value?.let {
-                val offerResponse = String(it)
-                Log.d(TAG, "Offer response $offerResponse")
-                channel.offer(offerResponse)
+                channel.offer(String(it))
             }
         }
     }

@@ -14,17 +14,17 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.barros.blecentralperipheral.R
-import com.barros.blecentralperipheral.TAG
-import com.barros.blecentralperipheral.connect.model.BleItem
-import com.barros.blecentralperipheral.connect.peripheralfragment.Mode
+import com.barros.blecentralperipheral.utils.TAG
+import com.barros.blecentralperipheral.utils.model.BleItem
+import com.barros.blecentralperipheral.utils.model.Mode
 import java.util.UUID
 
 class DeviceViewModel(val context: Context, item: BleItem) : ViewModel() {
 
     private val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
-
-    private lateinit var bleDiscoveredServices: List<BluetoothGattService>
+    private var isAlreadyConnected = false
+    private var bleDiscoveredServices: List<BluetoothGattService> = listOf()
     private lateinit var bluetoothGatt: BluetoothGatt
 
     private val uuidConnect: UUID = UUID.fromString(context.getString(R.string.uuid_connect_service))
@@ -43,16 +43,19 @@ class DeviceViewModel(val context: Context, item: BleItem) : ViewModel() {
     private val _isShowError = MutableLiveData(false)
     val isShowError: LiveData<Boolean> = _isShowError
 
+    private val _showToast = MutableLiveData("")
+    val showToast: LiveData<String> = _showToast
+
     private val _errorMessage = MutableLiveData("")
     val errorMessage: LiveData<String> = _errorMessage
 
-    private val _readValue = MutableLiveData("Read nothing")
+    private val _readValue = MutableLiveData(context.getString(R.string.read_nothing))
     val readValue: LiveData<String> = _readValue
 
-    private val _notifyValue = MutableLiveData("Notify nothing")
+    private val _notifyValue = MutableLiveData(context.getString(R.string.notify_nothing))
     val notifyValue: LiveData<String> = _notifyValue
 
-    private val _writeValue = MutableLiveData("Write nothing")
+    private val _writeValue = MutableLiveData(context.getString(R.string.write_nothing))
     val writeValue: LiveData<String> = _writeValue
 
     init {
@@ -75,17 +78,38 @@ class DeviceViewModel(val context: Context, item: BleItem) : ViewModel() {
     private fun connect() {
         val bluetoothDevice = bluetoothAdapter.getRemoteDevice(_bleItem.value!!.address)
         bluetoothGatt = bluetoothDevice.connectGatt(context, false, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE)
+        isAlreadyConnected = true
     }
 
     private fun disconnect() {
         bluetoothGatt.disconnect()
+        isAlreadyConnected = false
+    }
+
+    fun changeMode() {
+        if (isAlreadyConnected) {
+            bluetoothGatt.disconnect()
+
+            when (mode.value) {
+                Mode.READ -> _readValue.value = context.getString(R.string.read_nothing)
+                Mode.NOTIFY -> _notifyValue.value = context.getString(R.string.notify_nothing)
+                Mode.WRITE -> _writeValue.value = context.getString(R.string.write_nothing)
+            }
+
+            bluetoothGatt.connect()
+        }
     }
 
     fun read() {
-        if (bluetoothManager.getConnectedDevices(BluetoothProfile.GATT).isNotEmpty()) {
-            bleDiscoveredServices.first { it.uuid == uuidConnect }.characteristics.first { it.uuid == uuidCharacteristic }?.let {
-                bluetoothGatt.readCharacteristic(it)
+        if (_connectSwitch.value == true) {
+            _isShowError.value = false
+            if (bluetoothManager.getConnectedDevices(BluetoothProfile.GATT).isNotEmpty() && bleDiscoveredServices.isNotEmpty()) {
+                bleDiscoveredServices.first { it.uuid == uuidConnect }.characteristics.first { it.uuid == uuidCharacteristic }?.let {
+                    bluetoothGatt.readCharacteristic(it)
+                }
             }
+        } else {
+            _showToast.value = context.getString(R.string.active_connect_switch)
         }
     }
 
@@ -93,13 +117,13 @@ class DeviceViewModel(val context: Context, item: BleItem) : ViewModel() {
         when {
             !_connectSwitch.value!! -> {
                 _isShowError.value = true
-                _writeValue.value = "Nothing"
-                _errorMessage.value = "Active connect switch"
+                _writeValue.value = context.getString(R.string.nothing)
+                _errorMessage.value = context.getString(R.string.active_connect_switch)
             }
             sendingValue.value!!.isBlank() || sendingValue.value!!.length < 4 -> {
                 _isShowError.value = true
-                _writeValue.value = "Nothing"
-                _errorMessage.value = "Insert 4 numbers"
+                _writeValue.value = context.getString(R.string.nothing)
+                _errorMessage.value = context.getString(R.string.insert_four_numbers)
             }
             else -> {
                 _writeValue.value = sendingValue.value
@@ -133,7 +157,6 @@ class DeviceViewModel(val context: Context, item: BleItem) : ViewModel() {
                     bleDiscoveredServices = gatt.services
 
                     bleDiscoveredServices.first { it.uuid == uuidConnect }.characteristics.first { it.uuid == uuidCharacteristic }?.let { characteristic ->
-                        Log.i(TAG, "setCharacteristicNotification")
                         bluetoothGatt.setCharacteristicNotification(characteristic, true)
 
                         characteristic.descriptors.first { it.uuid == uuidDescriptor }?.let {
@@ -142,7 +165,9 @@ class DeviceViewModel(val context: Context, item: BleItem) : ViewModel() {
                         }
                     }
                 }
-                else -> Log.d(TAG, "onServicesDiscovered status received:: $status")
+                else -> {
+                    Log.d(TAG, "onServicesDiscovered status received:: $status")
+                }
             }
         }
 
@@ -151,7 +176,6 @@ class DeviceViewModel(val context: Context, item: BleItem) : ViewModel() {
             characteristic: BluetoothGattCharacteristic,
             status: Int
         ) {
-            Log.i(TAG, "onCharacteristicRead")
             when (status) {
                 BluetoothGatt.GATT_SUCCESS -> {
                     val value = String(characteristic.value)
@@ -168,9 +192,7 @@ class DeviceViewModel(val context: Context, item: BleItem) : ViewModel() {
         override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
             Log.i(TAG, "onCharacteristicChanged")
             if (characteristic != null && characteristic.uuid == uuidCharacteristic) {
-                val value = String(characteristic.value)
-                Log.i(TAG, "onCharacteristicChanged $value")
-                _notifyValue.postValue(value)
+                _notifyValue.postValue(String(characteristic.value))
             }
         }
 

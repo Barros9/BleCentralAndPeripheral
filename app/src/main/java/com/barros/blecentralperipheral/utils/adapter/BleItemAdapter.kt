@@ -1,12 +1,12 @@
-package com.barros.blecentralperipheral.connect.utils
+package com.barros.blecentralperipheral.utils.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.barros.blecentralperipheral.connect.model.BleItem
 import com.barros.blecentralperipheral.databinding.BleItemBinding
+import com.barros.blecentralperipheral.utils.model.BleItem
 
 class BleItemAdapter(private val onClickListener: OnClickListener) :
     ListAdapter<BleItem, BleItemAdapter.ItemViewHolder>(DiffCallback()) {

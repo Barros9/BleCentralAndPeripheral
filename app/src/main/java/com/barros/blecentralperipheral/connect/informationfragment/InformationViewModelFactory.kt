@@ -3,7 +3,7 @@ package com.barros.blecentralperipheral.connect.informationfragment
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.barros.blecentralperipheral.connect.model.BleItem
+import com.barros.blecentralperipheral.utils.model.BleItem
 
 class InformationViewModelFactory(
     private val context: Context,

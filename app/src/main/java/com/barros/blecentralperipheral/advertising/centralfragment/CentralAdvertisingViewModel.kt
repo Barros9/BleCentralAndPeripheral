@@ -1,36 +1,27 @@
 package com.barros.blecentralperipheral.advertising.centralfragment
 
-import android.Manifest
 import android.app.Application
-import android.bluetooth.BluetoothManager
-import android.content.Context
-import androidx.core.content.PermissionChecker
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.barros.blecentralperipheral.R
 import com.barros.blecentralperipheral.advertising.ble.BLECentralAdvertising
+import com.barros.blecentralperipheral.utils.PERMISSION_GRANTED
+import com.barros.blecentralperipheral.utils.checkPermissionGranted
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.launch
 
 class CentralAdvertisingViewModel(application: Application) : AndroidViewModel(application) {
     private val context = getApplication<Application>().applicationContext
-    private val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-    private val bluetoothAdapter = bluetoothManager.adapter
     private val bleCentral = BLECentralAdvertising(context)
 
-    private val _receiving = MutableLiveData("Nothing")
-    val receiving: LiveData<String> = _receiving
+    private val _receivedValue = MutableLiveData(context.getString(R.string.nothing))
+    val receivedValue: LiveData<String> = _receivedValue
 
     private val _scanSwitch = MutableLiveData(false)
     val scanSwitch: LiveData<Boolean> = _scanSwitch
-
-    private val _requestBluetooth = MutableLiveData(false)
-    val requestBluetooth: LiveData<Boolean> = _requestBluetooth
-
-    private val _requestLocation = MutableLiveData(false)
-    val requestLocation: LiveData<Boolean> = _requestLocation
 
     private val _showToast = MutableLiveData("")
     val showToast: LiveData<String> = _showToast
@@ -38,10 +29,15 @@ class CentralAdvertisingViewModel(application: Application) : AndroidViewModel(a
     fun setScanSwitch(isChecked: Boolean) {
         when (isChecked) {
             true -> {
-                if (hasPermission()) {
-                    _scanSwitch.value = true
-                    bleCentral.startScan()
-                    observeResponse()
+                when (val resultCheckPermission = checkPermissionGranted(context)) {
+                    PERMISSION_GRANTED -> {
+                        _scanSwitch.value = true
+                        bleCentral.startScan()
+                        observeResponse()
+                    }
+                    else -> {
+                        _showToast.value = resultCheckPermission
+                    }
                 }
             }
             false -> {
@@ -56,26 +52,9 @@ class CentralAdvertisingViewModel(application: Application) : AndroidViewModel(a
             bleCentral.getResponseFlow()
                 .conflate()
                 .collect {
-                    _receiving.value = it
+                    _receivedValue.value = it
                 }
         }
-    }
-
-    private fun hasPermission(): Boolean {
-        if (!bluetoothAdapter.isEnabled) {
-            _showToast.value = "Bluetooth not enabled"
-            _requestBluetooth.value = true
-            return false
-        } else if (!hasLocationPermission()) {
-            _showToast.value = "No location permission"
-            _requestLocation.value = true
-            return false
-        }
-        return true
-    }
-
-    private fun hasLocationPermission(): Boolean {
-        return PermissionChecker.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PermissionChecker.PERMISSION_GRANTED
     }
 
     override fun onCleared() {

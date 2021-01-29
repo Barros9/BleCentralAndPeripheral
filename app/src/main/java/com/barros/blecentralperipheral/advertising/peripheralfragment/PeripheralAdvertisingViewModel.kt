@@ -1,37 +1,30 @@
 package com.barros.blecentralperipheral.advertising.peripheralfragment
 
-import android.Manifest
 import android.app.Application
 import android.bluetooth.BluetoothManager
 import android.content.Context
-import androidx.core.content.PermissionChecker
-import androidx.core.content.PermissionChecker.checkSelfPermission
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.barros.blecentralperipheral.R
 import com.barros.blecentralperipheral.advertising.ble.BLEPeripheralAdvertising
+import com.barros.blecentralperipheral.utils.PERMISSION_GRANTED
+import com.barros.blecentralperipheral.utils.checkPermissionGranted
 
 class PeripheralAdvertisingViewModel(application: Application) : AndroidViewModel(application) {
 
     private val context = getApplication<Application>().applicationContext
     private val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-    private val bluetoothAdapter = bluetoothManager.adapter
     private val blePeripheral = BLEPeripheralAdvertising(context, bluetoothManager)
     private var isAlreadyAdvertising = false
 
     val sendingValue = MutableLiveData("")
 
-    private val _sentValue = MutableLiveData("Nothing")
+    private val _sentValue = MutableLiveData(context.getString(R.string.nothing))
     val sentValue: LiveData<String> = _sentValue
 
     private val _peripheralSwitch = MutableLiveData(false)
     val peripheralSwitch: LiveData<Boolean> = _peripheralSwitch
-
-    private val _requestBluetooth = MutableLiveData(false)
-    val requestBluetooth: LiveData<Boolean> = _requestBluetooth
-
-    private val _requestLocation = MutableLiveData(false)
-    val requestLocation: LiveData<Boolean> = _requestLocation
 
     private val _isShowError = MutableLiveData(false)
     val isShowError: LiveData<Boolean> = _isShowError
@@ -45,9 +38,14 @@ class PeripheralAdvertisingViewModel(application: Application) : AndroidViewMode
     fun setPeripheralSwitch(isChecked: Boolean) {
         when (isChecked) {
             true -> {
-                if (hasPermission()) {
-                    _peripheralSwitch.value = true
-                    updateSentValue()
+                when (val resultCheckPermission = checkPermissionGranted(context)) {
+                    PERMISSION_GRANTED -> {
+                        _peripheralSwitch.value = true
+                        updateSentValue()
+                    }
+                    else -> {
+                        _showToast.value = resultCheckPermission
+                    }
                 }
             }
             false -> {
@@ -57,7 +55,7 @@ class PeripheralAdvertisingViewModel(application: Application) : AndroidViewMode
                 isAlreadyAdvertising = false
                 _peripheralSwitch.value = false
                 _isShowError.value = false
-                _sentValue.value = "Nothing"
+                _sentValue.value = context.getString(R.string.nothing)
             }
         }
     }
@@ -66,13 +64,13 @@ class PeripheralAdvertisingViewModel(application: Application) : AndroidViewMode
         when {
             !_peripheralSwitch.value!! -> {
                 _isShowError.value = true
-                _sentValue.value = "Nothing"
-                _errorMessage.value = "Active peripheral switch"
+                _sentValue.value = context.getString(R.string.nothing)
+                _errorMessage.value = context.getString(R.string.active_peripheral_switch)
             }
             sendingValue.value!!.isBlank() || sendingValue.value!!.length < 4 -> {
                 _isShowError.value = true
-                _sentValue.value = "Nothing"
-                _errorMessage.value = "Insert 4 numbers"
+                _sentValue.value = context.getString(R.string.nothing)
+                _errorMessage.value = context.getString(R.string.insert_four_numbers)
             }
             else -> {
                 _sentValue.value = sendingValue.value
@@ -88,23 +86,6 @@ class PeripheralAdvertisingViewModel(application: Application) : AndroidViewMode
         }
         blePeripheral.start(_sentValue.value!!)
         isAlreadyAdvertising = true
-    }
-
-    private fun hasPermission(): Boolean {
-        if (!bluetoothAdapter.isEnabled) {
-            _showToast.value = "Bluetooth not enabled"
-            _requestBluetooth.value = true
-            return false
-        } else if (!hasLocationPermission()) {
-            _showToast.value = "No location permission"
-            _requestLocation.value = true
-            return false
-        }
-        return true
-    }
-
-    private fun hasLocationPermission(): Boolean {
-        return checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PermissionChecker.PERMISSION_GRANTED
     }
 
     override fun onCleared() {

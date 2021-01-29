@@ -17,7 +17,7 @@ import android.content.Context
 import android.os.ParcelUuid
 import android.util.Log
 import com.barros.blecentralperipheral.R
-import com.barros.blecentralperipheral.TAG
+import com.barros.blecentralperipheral.utils.TAG
 import java.util.Arrays
 import java.util.UUID
 import kotlinx.coroutines.channels.Channel
@@ -111,9 +111,8 @@ class BLEPeripheralConnect(
         sentValue = value
         bluetoothManager.getConnectedDevices(BluetoothProfile.GATT).forEach { device ->
             val bluetoothGattCharacteristic = bluetoothGattServer.getService(uuidConnectService).getCharacteristic(uuidCharacteristic)
-            val updateValue = sentValue.toByteArray(Charsets.UTF_8)
-            Log.i(TAG, "notifyValue ${String(updateValue)}")
-            bluetoothGattCharacteristic.value = updateValue
+            bluetoothGattCharacteristic.value = sentValue.toByteArray(Charsets.UTF_8)
+
             bluetoothGattServer.notifyCharacteristicChanged(
                 device,
                 bluetoothGattCharacteristic,
@@ -153,12 +152,9 @@ class BLEPeripheralConnect(
             if (uuidCharacteristic == characteristic.uuid) {
                 Log.i(TAG, "Read Characteristic")
                 bluetoothGattServer.sendResponse(
-                    device, requestId, BluetoothGatt.GATT_SUCCESS, 0, sentValue.toByteArray(
-                        Charsets.UTF_8
-                    )
+                    device, requestId, BluetoothGatt.GATT_SUCCESS, 0, sentValue.toByteArray(Charsets.UTF_8)
                 )
             } else {
-                Log.w(TAG, "Invalid Characteristic Read: " + characteristic.uuid)
                 bluetoothGattServer.sendResponse(
                     device,
                     requestId,
@@ -183,7 +179,6 @@ class BLEPeripheralConnect(
                     channel.offer(String(it))
                 }
             } else {
-                Log.i(TAG, "Invalid Characteristic Write: " + characteristic!!.uuid)
                 if (responseNeeded) {
                     bluetoothGattServer.sendResponse(
                         device,
@@ -204,12 +199,11 @@ class BLEPeripheralConnect(
         ) {
             if (uuidDescriptor == descriptor?.uuid) {
                 val value = if (registeredDevices.contains(device)) {
-                    Log.i(TAG, "onDescriptorReadRequest enable notification")
                     BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
                 } else {
-                    Log.i(TAG, "onDescriptorReadRequest disable notification")
                     BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
                 }
+
                 bluetoothGattServer.sendResponse(
                     device,
                     requestId,
@@ -240,12 +234,10 @@ class BLEPeripheralConnect(
         ) {
             if (uuidDescriptor == descriptor?.uuid) {
                 if (Arrays.equals(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE, value)) {
-                    Log.i(TAG, "Subscribe device to notifications: $device")
                     device?.let {
                         registeredDevices.add(it)
                     }
                 } else if (Arrays.equals(BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE, value)) {
-                    Log.i(TAG, "Unsubscribe device from notifications: $device")
                     registeredDevices.remove(device)
                 }
 
@@ -259,7 +251,6 @@ class BLEPeripheralConnect(
                     )
                 }
             } else {
-                Log.i(TAG, "Unknown descriptor write request")
                 if (responseNeeded) {
                     bluetoothGattServer.sendResponse(
                         device,

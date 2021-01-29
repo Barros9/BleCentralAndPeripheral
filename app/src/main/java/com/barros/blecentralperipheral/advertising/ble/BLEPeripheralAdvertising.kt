@@ -12,7 +12,7 @@ import android.content.Context
 import android.os.ParcelUuid
 import android.util.Log
 import com.barros.blecentralperipheral.R
-import com.barros.blecentralperipheral.TAG
+import com.barros.blecentralperipheral.utils.TAG
 import java.util.UUID
 
 class BLEPeripheralAdvertising(

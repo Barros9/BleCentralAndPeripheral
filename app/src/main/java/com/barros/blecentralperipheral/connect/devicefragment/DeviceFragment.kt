@@ -6,13 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.barros.blecentralperipheral.R
-import com.barros.blecentralperipheral.connect.model.BleItem
-import com.barros.blecentralperipheral.connect.peripheralfragment.Mode
 import com.barros.blecentralperipheral.databinding.FragmentDeviceBinding
+import com.barros.blecentralperipheral.utils.model.BleItem
+import com.barros.blecentralperipheral.utils.model.Mode
 
 class DeviceFragment : Fragment() {
 
@@ -66,6 +67,7 @@ class DeviceFragment : Fragment() {
                         }
                     }
                     deviceViewModel.mode.value = Mode.values()[position]
+                    deviceViewModel.changeMode()
                 }
 
                 override fun onNothingSelected(parentView: AdapterView<*>?) {}
@@ -74,6 +76,12 @@ class DeviceFragment : Fragment() {
             sendingValue.doOnTextChanged { text, _, _, _ ->
                 deviceViewModel.sendingValue.value = text.toString()
             }
+
+            deviceViewModel.showToast.observe(viewLifecycleOwner, { message ->
+                if (message.isNotBlank()) {
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                }
+            })
         }.root
     }
 }

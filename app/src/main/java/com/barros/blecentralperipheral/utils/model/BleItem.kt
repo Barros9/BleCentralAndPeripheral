@@ -1,4 +1,4 @@
-package com.barros.blecentralperipheral.connect.model
+package com.barros.blecentralperipheral.utils.model
 
 import android.bluetooth.BluetoothDevice
 import android.os.Parcelable

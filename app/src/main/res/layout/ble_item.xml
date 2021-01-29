@@ -9,7 +9,7 @@
             type="android.view.View"/>
         <variable
             name="bleItem"
-            type="com.barros.blecentralperipheral.connect.model.BleItem" />
+            type="com.barros.blecentralperipheral.utils.model.BleItem" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

@@ -9,8 +9,8 @@ import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.util.Log
 import com.barros.blecentralperipheral.R
-import com.barros.blecentralperipheral.TAG
-import com.barros.blecentralperipheral.connect.model.BleItem
+import com.barros.blecentralperipheral.utils.TAG
+import com.barros.blecentralperipheral.utils.model.BleItem
 import java.util.UUID
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -55,12 +55,11 @@ class BLECentralConnect(context: Context) {
             val bleItem = if (result.device.name != null) {
                 BleItem(result.device, result.device.name, result.device.address, result.isConnectable, isMyUuid)
             } else {
-                BleItem(result.device, "N/A", result.device.address, result.isConnectable, isMyUuid)
+                BleItem(result.device, context.getString(R.string.not_available), result.device.address, result.isConnectable, isMyUuid)
             }
 
             if (bleItemList.firstOrNull { it.device == result.device } == null) {
                 bleItemList.add(bleItem)
-                Log.d(TAG, "Offer response $bleItemList")
                 bleItemListChannel.offer(bleItemList)
             }
         }

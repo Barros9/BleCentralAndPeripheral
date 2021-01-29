@@ -1,37 +1,29 @@
 package com.barros.blecentralperipheral.mainfragment
 
 import android.app.Application
-import android.bluetooth.BluetoothManager
-import android.content.Context
-import android.content.pm.PackageManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.barros.blecentralperipheral.utils.PERMISSION_GRANTED
+import com.barros.blecentralperipheral.utils.checkPermissionGranted
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val context = getApplication<Application>().applicationContext
+    val isEnabled = MutableLiveData(false)
 
     private val _showToast = MutableLiveData("")
     val showToast: LiveData<String> = _showToast
 
-    private val _isEnabled = MutableLiveData(true)
-    val isEnabled: LiveData<Boolean> = _isEnabled
-
     init {
-        checkBLE()
-    }
-
-    private fun checkBLE() {
-        val bluetoothAdapter = (getApplication<Application>().applicationContext.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
-        val packageManager = getApplication<Application>().applicationContext.packageManager
-
-        if (!packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            _showToast.value = "This device cannot use BLE functions"
-            _isEnabled.value = false
-        }
-
-        if (!bluetoothAdapter.isMultipleAdvertisementSupported) {
-            _showToast.value = "This device cannot use MultipleAdvertisement functions"
-            _isEnabled.value = false
+        when (val resultCheckPermission = checkPermissionGranted(context)) {
+            PERMISSION_GRANTED -> {
+                isEnabled.value = true
+            }
+            else -> {
+                isEnabled.value = false
+                _showToast.value = resultCheckPermission
+            }
         }
     }
 }

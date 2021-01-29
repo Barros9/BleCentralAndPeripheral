@@ -6,7 +6,7 @@
     <data>
         <variable
             name="informationItem"
-            type="com.barros.blecentralperipheral.connect.model.InformationItem" />
+            type="com.barros.blecentralperipheral.utils.model.InformationItem" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

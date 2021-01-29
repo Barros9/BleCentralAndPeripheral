@@ -1,12 +1,12 @@
-package com.barros.blecentralperipheral.connect.utils
+package com.barros.blecentralperipheral.utils.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.barros.blecentralperipheral.connect.model.InformationItem
 import com.barros.blecentralperipheral.databinding.InformationItemBinding
+import com.barros.blecentralperipheral.utils.model.InformationItem
 
 class InformationAdapter :
     ListAdapter<InformationItem, InformationAdapter.ItemViewHolder>(DiffCallback()) {
